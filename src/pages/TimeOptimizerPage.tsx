@@ -13,6 +13,7 @@ const TimeOptimizerPage = () => {
   const { t, lang } = useI18n();
   const isHe = lang === "he";
   const BackArrow = isHe ? ArrowRight : ArrowLeft;
+  const { saveEntry, getProgressMessages } = useSmartMemory("time");
 
   const [weeklyHours, setWeeklyHours] = useState("");
   const [salary, setSalary] = useState("");
