@@ -30,26 +30,28 @@ const DESIGN_STYLES: { id: DesignStyle; he: string; en: string }[] = [
 ];
 
 const BG_COLORS = [
-  { hex: "#ffffff", label: "לבן" },
-  { hex: "#f5f0e8", label: "שמנת" },
-  { hex: "#f8f4ff", label: "לבנדר" },
-  { hex: "#fef3c7", label: "שמפניה" },
-  { hex: "#fce7f3", label: "ורוד בהיר" },
-  { hex: "#dbeafe", label: "תכלת" },
-  { hex: "#d1fae5", label: "מנטה" },
-  { hex: "#e0e7ff", label: "אינדיגו בהיר" },
-  { hex: "#fde68a", label: "זהב בהיר" },
-  { hex: "#d4ddd0", label: "ירוק אפור" },
-  { hex: "#f5e0e0", label: "אפרסק" },
-  { hex: "#e8ecf8", label: "כחול קרח" },
-  { hex: "#1a1a2e", label: "כחול כהה" },
-  { hex: "#111111", label: "שחור" },
-  { hex: "#2d1b3d", label: "סגול כהה" },
-  { hex: "#0c1929", label: "כחול עמוק" },
-  { hex: "#1c1917", label: "חום כהה" },
-  { hex: "#1a3a2a", label: "ירוק כהה" },
-  { hex: "#431407", label: "בורדו" },
-  { hex: "#0f172a", label: "כחול חצות" },
+  // Whites & Neutrals
+  "#ffffff", "#f9fafb", "#f3f4f6", "#e5e7eb", "#d1d5db", "#9ca3af", "#6b7280", "#4b5563", "#374151", "#1f2937", "#111827", "#000000",
+  // Reds
+  "#fef2f2", "#fecaca", "#fca5a5", "#f87171", "#ef4444", "#dc2626", "#b91c1c", "#991b1b", "#7f1d1d", "#450a0a",
+  // Oranges
+  "#fff7ed", "#fed7aa", "#fdba74", "#fb923c", "#f97316", "#ea580c", "#c2410c", "#9a3412", "#7c2d12", "#431407",
+  // Yellows
+  "#fefce8", "#fef08a", "#fde047", "#facc15", "#eab308", "#ca8a04", "#a16207", "#854d0e", "#713f12", "#422006",
+  // Greens
+  "#f0fdf4", "#bbf7d0", "#86efac", "#4ade80", "#22c55e", "#16a34a", "#15803d", "#166534", "#14532d", "#052e16",
+  // Teals
+  "#f0fdfa", "#99f6e4", "#5eead4", "#2dd4bf", "#14b8a6", "#0d9488", "#0f766e", "#115e59", "#134e4a", "#042f2e",
+  // Blues
+  "#eff6ff", "#bfdbfe", "#93c5fd", "#60a5fa", "#3b82f6", "#2563eb", "#1d4ed8", "#1e40af", "#1e3a8a", "#172554",
+  // Indigos
+  "#eef2ff", "#c7d2fe", "#a5b4fc", "#818cf8", "#6366f1", "#4f46e5", "#4338ca", "#3730a3", "#312e81", "#1e1b4b",
+  // Purples
+  "#faf5ff", "#e9d5ff", "#d8b4fe", "#c084fc", "#a855f7", "#9333ea", "#7e22ce", "#6b21a8", "#581c87", "#3b0764",
+  // Pinks
+  "#fdf2f8", "#fbcfe8", "#f9a8d4", "#f472b6", "#ec4899", "#db2777", "#be185d", "#9d174d", "#831843", "#500724",
+  // Rose
+  "#fff1f2", "#fecdd3", "#fda4af", "#fb7185", "#f43f5e", "#e11d48", "#be123c", "#9f1239", "#881337", "#4c0519",
 ];
 
 // Type-specific customizations
