@@ -2,16 +2,18 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import SparkleIcon from "@/components/SparkleIcon";
 import { useI18n } from "@/lib/i18n";
+import { useSmartMemory } from "@/hooks/useSmartMemory";
 import { generateText } from "@/lib/ai-service";
 import {
   ArrowRight, ArrowLeft, Sparkles, Calendar, Clock, AlertTriangle,
-  TrendingUp, Battery, Lock, Loader2, Zap, Download, FileText,
+  TrendingUp, Battery, Lock, Loader2, Zap, Download, FileText, Trophy,
 } from "lucide-react";
 
 const TimeOptimizerPage = () => {
   const { t, lang } = useI18n();
   const isHe = lang === "he";
   const BackArrow = isHe ? ArrowRight : ArrowLeft;
+  const { saveEntry, getProgressMessages } = useSmartMemory("time");
 
   const [weeklyHours, setWeeklyHours] = useState("");
   const [salary, setSalary] = useState("");
@@ -29,8 +31,13 @@ const TimeOptimizerPage = () => {
   const proFeatures = [t("time.proLoadForecast"), t("time.proServiceSim"), t("time.proProfitDay"), t("time.proPricingRec")];
 
   const handleStartAnalysis = () => {
-    if (hours > 0) setDataEntered(true);
+    if (hours > 0) {
+      saveEntry({ hours, hourlyValue, burnout });
+      setDataEntered(true);
+    }
   };
+
+  const progressMessages = getProgressMessages({ hours, hourlyValue, burnout }, lang);
 
   const handleOptimize = async () => {
     setIsOptimizing(true);
@@ -150,6 +157,16 @@ const TimeOptimizerPage = () => {
                 <div className="text-[10px] text-muted-foreground font-medium mt-0.5">{t("time.loadIndex")}</div>
               </div>
             </div>
+
+            {/* Progress messages */}
+            {progressMessages.length > 0 && (
+              <div className="glass-card rounded-xl p-4 space-y-2 border border-primary/20">
+                <div className="flex items-center gap-2 mb-1"><Trophy size={14} className="text-primary" /><span className="text-sm font-bold text-foreground">{isHe ? "מעקב התקדמות" : "Progress Tracking"}</span></div>
+                {progressMessages.map((msg, i) => (
+                  <div key={i} className="bg-primary/5 rounded-lg p-2.5 text-sm text-foreground">{msg}</div>
+                ))}
+              </div>
+            )}
 
             {/* Burnout bar — cleaner */}
             <div className="glass-card rounded-2xl p-5">

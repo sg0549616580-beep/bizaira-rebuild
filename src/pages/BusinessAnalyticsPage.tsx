@@ -2,10 +2,11 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import SparkleIcon from "@/components/SparkleIcon";
 import { useI18n } from "@/lib/i18n";
+import { useSmartMemory } from "@/hooks/useSmartMemory";
 import {
   ArrowRight, ArrowLeft, TrendingUp, TrendingDown, DollarSign,
   Users, Target, MessageSquare, BarChart3, Lock, Sparkles, Loader2,
-  PieChart, Download, FileText, Heart, HelpCircle,
+  PieChart, Download, FileText, Heart, HelpCircle, Trophy,
 } from "lucide-react";
 import { generateText } from "@/lib/ai-service";
 
@@ -17,6 +18,7 @@ const BusinessAnalyticsPage = () => {
   const isHe = lang === "he";
   const BackArrow = isHe ? ArrowRight : ArrowLeft;
   const currency = "₪";
+  const { saveEntry, getProgressMessages, history } = useSmartMemory("analytics");
 
   const [monthlyRevenue, setMonthlyRevenue] = useState("");
   const [monthlyExpenses, setMonthlyExpenses] = useState("");
@@ -54,8 +56,13 @@ const BusinessAnalyticsPage = () => {
   });
 
   const handleStartAnalysis = () => {
-    if (revenue > 0) setDataEntered(true);
+    if (revenue > 0) {
+      saveEntry({ revenue, profit, clients, profitMargin });
+      setDataEntered(true);
+    }
   };
+
+  const progressMessages = getProgressMessages({ revenue, profit, clients, profitMargin }, lang);
 
   const handleAsk = async () => {
     if (!question.trim()) return;
@@ -190,7 +197,17 @@ const BusinessAnalyticsPage = () => {
               ))}
             </div>
 
-            {/* Profit margin */}
+            {/* Progress messages */}
+            {progressMessages.length > 0 && (
+              <div className="glass-card rounded-xl p-4 space-y-2 border border-primary/20">
+                <div className="flex items-center gap-2 mb-1"><Trophy size={14} className="text-primary" /><span className="text-sm font-bold text-foreground">{isHe ? "מעקב התקדמות" : "Progress Tracking"}</span></div>
+                {progressMessages.map((msg, i) => (
+                  <div key={i} className="bg-primary/5 rounded-lg p-2.5 text-sm text-foreground">{msg}</div>
+                ))}
+              </div>
+            )}
+
+
             <div className="glass-card rounded-xl p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-bold text-foreground">{isHe ? "מרווח רווח" : "Profit Margin"}</span>

@@ -2,16 +2,18 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import SparkleIcon from "@/components/SparkleIcon";
 import { useI18n } from "@/lib/i18n";
+import { useSmartMemory } from "@/hooks/useSmartMemory";
 import { generateText } from "@/lib/ai-service";
 import {
   ArrowRight, ArrowLeft, Sparkles, DollarSign, Clock, TrendingUp,
-  AlertTriangle, Lock, Calculator, Loader2, Zap, Package, Download,
+  AlertTriangle, Lock, Calculator, Loader2, Zap, Package, Download, Trophy,
 } from "lucide-react";
 
 const PricingStrategistPage = () => {
   const { t, lang } = useI18n();
   const isHe = lang === "he";
   const BackArrow = isHe ? ArrowRight : ArrowLeft;
+  const { saveEntry, getProgressMessages } = useSmartMemory("pricing");
 
   const [serviceDuration, setServiceDuration] = useState("");
   const [materialCost, setMaterialCost] = useState("");
@@ -105,10 +107,18 @@ const PricingStrategistPage = () => {
           </div>
         </div>
 
-        <button onClick={() => setCalculated(true)} disabled={!serviceDuration} className="w-full gradient-glow glow-shadow text-primary-foreground font-bold py-4 rounded-xl text-lg flex items-center justify-center gap-2 hover:scale-[1.02] transition-all disabled:opacity-50"><Sparkles size={22} />{t("pricing.calculate")}</button>
+        <button onClick={() => { saveEntry({ recommendedPrice, hourlyValue, minPrice, premiumPrice }); setCalculated(true); }} disabled={!serviceDuration} className="w-full gradient-glow glow-shadow text-primary-foreground font-bold py-4 rounded-xl text-lg flex items-center justify-center gap-2 hover:scale-[1.02] transition-all disabled:opacity-50"><Sparkles size={22} />{t("pricing.calculate")}</button>
 
         {calculated && (
           <div className="animate-fade-in-up space-y-4">
+            {getProgressMessages({ recommendedPrice, hourlyValue }, lang).length > 0 && (
+              <div className="glass-card rounded-xl p-4 space-y-2 border border-primary/20">
+                <div className="flex items-center gap-2 mb-1"><Trophy size={14} className="text-primary" /><span className="text-sm font-bold text-foreground">{isHe ? "מעקב התקדמות" : "Progress Tracking"}</span></div>
+                {getProgressMessages({ recommendedPrice, hourlyValue }, lang).map((msg, i) => (
+                  <div key={i} className="bg-primary/5 rounded-lg p-2.5 text-sm text-foreground">{msg}</div>
+                ))}
+              </div>
+            )}
             <div className="grid grid-cols-3 gap-3">
               <PriceCard label={t("pricing.minPrice")} price={minPrice} sublabel={t("pricing.notRecommended")} variant="warning" />
               <PriceCard label={t("pricing.recommended")} price={recommendedPrice} sublabel={t("pricing.recommendedLabel")} variant="primary" />
