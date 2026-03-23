@@ -2,10 +2,11 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import SparkleIcon from "@/components/SparkleIcon";
 import { useI18n } from "@/lib/i18n";
+import { useSmartMemory } from "@/hooks/useSmartMemory";
 import { generateText } from "@/lib/ai-service";
 import {
   ArrowRight, ArrowLeft, Sparkles, Calendar, Clock, AlertTriangle,
-  TrendingUp, Battery, Lock, Loader2, Zap, Download, FileText,
+  TrendingUp, Battery, Lock, Loader2, Zap, Download, FileText, Trophy,
 } from "lucide-react";
 
 const TimeOptimizerPage = () => {
