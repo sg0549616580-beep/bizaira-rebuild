@@ -2,10 +2,11 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import SparkleIcon from "@/components/SparkleIcon";
 import { useI18n } from "@/lib/i18n";
+import { useSmartMemory } from "@/hooks/useSmartMemory";
 import {
   ArrowRight, ArrowLeft, TrendingUp, TrendingDown, DollarSign,
   Users, Target, MessageSquare, BarChart3, Lock, Sparkles, Loader2,
-  PieChart, Download, FileText, Heart, HelpCircle,
+  PieChart, Download, FileText, Heart, HelpCircle, Trophy,
 } from "lucide-react";
 import { generateText } from "@/lib/ai-service";
 
