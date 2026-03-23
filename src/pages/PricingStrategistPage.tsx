@@ -2,10 +2,11 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import SparkleIcon from "@/components/SparkleIcon";
 import { useI18n } from "@/lib/i18n";
+import { useSmartMemory } from "@/hooks/useSmartMemory";
 import { generateText } from "@/lib/ai-service";
 import {
   ArrowRight, ArrowLeft, Sparkles, DollarSign, Clock, TrendingUp,
-  AlertTriangle, Lock, Calculator, Loader2, Zap, Package, Download,
+  AlertTriangle, Lock, Calculator, Loader2, Zap, Package, Download, Trophy,
 } from "lucide-react";
 
 const PricingStrategistPage = () => {
