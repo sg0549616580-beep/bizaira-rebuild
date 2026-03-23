@@ -126,7 +126,6 @@ const ProductPhotoStudioPage = () => {
     setIsProcessing(true);
     try {
       const styleLabel = DESIGN_STYLES.find(s => s.id === designStyle)?.en || "minimalist";
-      const bgIsLight = BG_COLORS.find(c => c.hex === bgColor);
       const bgDesc = `background color ${bgColor}`;
 
       let prompt = "";
