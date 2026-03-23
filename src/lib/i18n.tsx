@@ -165,7 +165,7 @@ const translations: Translations = {
   "pres.themeClean": { he: "עסקי נקי", en: "Clean Business" },
 
   // Product Photo Studio
-  "photo.title": { he: "סטודיו תמונות מוצר", en: "Product Photo Studio" },
+  "photo.title": { he: "סטודיו תמונות", en: "Photo Studio" },
   "photo.subtitle": { he: "תמונות ברמת צלם מקצועי", en: "Professional photographer-level photos" },
   "photo.beforeAfter": { he: "לפני / אחרי", en: "Before / After" },
   "photo.uploadStart": { he: "העלה תמונה כדי להתחיל", en: "Upload an image to start" },
