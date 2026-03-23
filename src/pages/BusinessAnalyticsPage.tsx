@@ -56,8 +56,13 @@ const BusinessAnalyticsPage = () => {
   });
 
   const handleStartAnalysis = () => {
-    if (revenue > 0) setDataEntered(true);
+    if (revenue > 0) {
+      saveEntry({ revenue, profit, clients, profitMargin });
+      setDataEntered(true);
+    }
   };
+
+  const progressMessages = getProgressMessages({ revenue, profit, clients, profitMargin }, lang);
 
   const handleAsk = async () => {
     if (!question.trim()) return;
