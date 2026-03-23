@@ -277,7 +277,7 @@ const translations: Translations = {
   "pricing.materials": { he: "עלות חומרים (₪)", en: "Material Cost (₪)" },
   "pricing.prepTime": { he: "זמן הכנה (דקות)", en: "Prep Time (min)" },
   "pricing.fixedExpenses": { he: "הוצאות קבועות/חודש", en: "Fixed Expenses/month" },
-  "pricing.desiredProfit": { he: "אחוז רווח רצוי", en: "Desired Profit %" },
+  "pricing.desiredProfit": { he: "יעד רווחיות", en: "Profitability Target" },
   "pricing.calculate": { he: "חשב תמחור אסטרטגי", en: "Calculate Strategic Pricing" },
   "pricing.minPrice": { he: "מחיר מינימום", en: "Minimum Price" },
   "pricing.recommended": { he: "מחיר מומלץ", en: "Recommended Price" },
