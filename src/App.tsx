@@ -44,39 +44,28 @@ const App = () => (
             <Routes>
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/onboarding" element={<OnboardingPage />} />
-              <Route path="/admin/*" element={
-                <AdminLayout>
-                  <Routes>
-                    <Route path="/pages" element={<AdminPagesPage />} />
-                    <Route path="/media" element={<AdminMediaPage />} />
-                    <Route path="/components" element={<AdminComponentsPage />} />
-                    <Route path="/ai" element={<AdminAIPage />} />
-                    <Route path="/users" element={<AdminUsersPage />} />
-                    <Route path="/settings" element={<AdminSettingsPage />} />
-                    <Route path="*" element={<AdminPagesPage />} />
-                  </Routes>
-                </AdminLayout>
-              } />
-              <Route path="*" element={
-                <AppLayout>
-                  <Routes>
-                    <Route path="/" element={<LandingPage />} />
-                    <Route path="/create" element={<CreatePage />} />
-                    <Route path="/create/presentation" element={<PresentationStudioPage />} />
-                    <Route path="/create/product-photos" element={<ProductPhotoStudioPage />} />
-                    <Route path="/create/messages" element={<AIMessagesPage />} />
-                    <Route path="/create/analytics" element={<BusinessAnalyticsPage />} />
-                    <Route path="/create/time" element={<TimeOptimizerPage />} />
-                    <Route path="/create/pricing" element={<PricingStrategistPage />} />
-                    <Route path="/create/image-studio" element={<ImageStudioPage />} />
-                    <Route path="/create/video" element={<VideoStudioPage />} />
-                    <Route path="/dashboard" element={<DashboardPage />} />
-                    <Route path="/pricing" element={<PricingPage />} />
-                    <Route path="/support" element={<SupportPage />} />
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </AppLayout>
-              } />
+
+              <Route path="/admin/pages" element={<AdminLayout><AdminPagesPage /></AdminLayout>} />
+              <Route path="/admin/media" element={<AdminLayout><AdminMediaPage /></AdminLayout>} />
+              <Route path="/admin/components" element={<AdminLayout><AdminComponentsPage /></AdminLayout>} />
+              <Route path="/admin/ai" element={<AdminLayout><AdminAIPage /></AdminLayout>} />
+              <Route path="/admin/users" element={<AdminLayout><AdminUsersPage /></AdminLayout>} />
+              <Route path="/admin/settings" element={<AdminLayout><AdminSettingsPage /></AdminLayout>} />
+
+              <Route path="/" element={<AppLayout><LandingPage /></AppLayout>} />
+              <Route path="/create" element={<AppLayout><CreatePage /></AppLayout>} />
+              <Route path="/create/presentation" element={<AppLayout><PresentationStudioPage /></AppLayout>} />
+              <Route path="/create/product-photos" element={<AppLayout><ProductPhotoStudioPage /></AppLayout>} />
+              <Route path="/create/messages" element={<AppLayout><AIMessagesPage /></AppLayout>} />
+              <Route path="/create/analytics" element={<AppLayout><BusinessAnalyticsPage /></AppLayout>} />
+              <Route path="/create/time" element={<AppLayout><TimeOptimizerPage /></AppLayout>} />
+              <Route path="/create/pricing" element={<AppLayout><PricingStrategistPage /></AppLayout>} />
+              <Route path="/create/image-studio" element={<AppLayout><ImageStudioPage /></AppLayout>} />
+              <Route path="/create/video" element={<AppLayout><VideoStudioPage /></AppLayout>} />
+              <Route path="/dashboard" element={<AppLayout><DashboardPage /></AppLayout>} />
+              <Route path="/pricing" element={<AppLayout><PricingPage /></AppLayout>} />
+              <Route path="/support" element={<AppLayout><SupportPage /></AppLayout>} />
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
         </AuthProvider>
