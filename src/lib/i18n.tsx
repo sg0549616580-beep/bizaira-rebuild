@@ -216,7 +216,7 @@ const translations: Translations = {
   "msg.purposeService": { he: "הודעת שירות", en: "Service Message" },
   "msg.purposeReminder": { he: "תזכורת", en: "Reminder" },
   "msg.purposePost": { he: "פוסט לרשתות", en: "Social Post" },
-  "msg.purposeCollection": { he: "גבייה עדינה", en: "Gentle Collection" },
+  "msg.purposeCollection": { he: "תזכורת תשלום", en: "Payment Reminder" },
   "msg.purposeLaunch": { he: "הודעת השקה", en: "Launch Message" },
   "msg.toneFormal": { he: "רשמי", en: "Formal" },
   "msg.toneWarm": { he: "חמים", en: "Warm" },
