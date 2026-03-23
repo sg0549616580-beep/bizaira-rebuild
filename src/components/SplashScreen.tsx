@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 interface SplashScreenProps {
   onComplete: () => void;
@@ -6,17 +6,29 @@ interface SplashScreenProps {
 
 const SplashScreen = ({ onComplete }: SplashScreenProps) => {
   const [phase, setPhase] = useState<"enter" | "hold" | "exit">("enter");
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
 
   useEffect(() => {
-    const enterTimer = setTimeout(() => setPhase("hold"), 800);
-    const exitTimer = setTimeout(() => setPhase("exit"), 2200);
-    const doneTimer = setTimeout(() => onComplete(), 2800);
+    console.log("[BizAIra] SplashScreen mounted");
+    const enterTimer = setTimeout(() => {
+      console.log("[BizAIra] SplashScreen -> hold");
+      setPhase("hold");
+    }, 800);
+    const exitTimer = setTimeout(() => {
+      console.log("[BizAIra] SplashScreen -> exit");
+      setPhase("exit");
+    }, 2200);
+    const doneTimer = setTimeout(() => {
+      console.log("[BizAIra] SplashScreen -> complete");
+      onCompleteRef.current();
+    }, 2800);
     return () => {
       clearTimeout(enterTimer);
       clearTimeout(exitTimer);
       clearTimeout(doneTimer);
     };
-  }, [onComplete]);
+  }, []);
 
   return (
     <div
