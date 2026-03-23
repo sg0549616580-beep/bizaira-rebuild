@@ -7,25 +7,64 @@ import {
   ArrowRight, ArrowLeft, Upload, X, Download, RefreshCw,
   Sparkles, Loader2, Sun, Contrast, Thermometer,
   Image as ImageIcon, Layers, Tag, Type, Droplet,
+  Camera, User, Palette, ChevronRight, ChevronLeft, ShieldCheck,
 } from "lucide-react";
 
-type BgOption = "white" | "dark" | "nature" | "office" | "custom";
+type ProductType = "product" | "logo" | "profile" | "banner";
+type DesignStyle = "minimal" | "card" | "luxury" | "modern" | "soft" | "clean";
 
-const BG_OPTIONS: { id: BgOption; he: string; en: string; prompt: string }[] = [
-  { id: "white", he: "סטודיו לבן", en: "White Studio", prompt: "clean white studio background with soft shadows" },
-  { id: "dark", he: "יוקרתי כהה", en: "Dark Luxury", prompt: "dark luxury background with dramatic lighting and soft reflections" },
-  { id: "nature", he: "טבעי", en: "Natural", prompt: "natural outdoor background with soft bokeh and warm sunlight" },
-  { id: "office", he: "משרד מודרני", en: "Modern Office", prompt: "modern minimalist office background with clean lines" },
-  { id: "custom", he: "מותאם אישית", en: "Custom", prompt: "" },
+const PRODUCT_TYPES: { id: ProductType; he: string; en: string; icon: typeof Camera }[] = [
+  { id: "product", he: "תמונת מוצר", en: "Product Photo", icon: Camera },
+  { id: "logo", he: "לוגו", en: "Logo", icon: Sparkles },
+  { id: "profile", he: "פרופיל עסקי", en: "Business Profile", icon: User },
+  { id: "banner", he: "באנר", en: "Banner", icon: ImageIcon },
 ];
 
-const STYLES: { id: string; he: string; en: string }[] = [
-  { id: "clean", he: "נקי", en: "Clean" },
+const DESIGN_STYLES: { id: DesignStyle; he: string; en: string }[] = [
+  { id: "minimal", he: "מינימלי", en: "Minimalist" },
+  { id: "card", he: "כרטיס", en: "Card" },
   { id: "luxury", he: "יוקרתי", en: "Luxury" },
-  { id: "natural", he: "טבעי", en: "Natural" },
-  { id: "urban", he: "אורבני", en: "Urban" },
-  { id: "soft", he: "רך", en: "Soft" },
   { id: "modern", he: "מודרני", en: "Modern" },
+  { id: "soft", he: "רך ועדין", en: "Soft" },
+  { id: "clean", he: "נקי", en: "Clean" },
+];
+
+const BG_COLORS = [
+  { hex: "#ffffff", label: "לבן" },
+  { hex: "#f5f0e8", label: "שמנת" },
+  { hex: "#f8f4ff", label: "לבנדר" },
+  { hex: "#fef3c7", label: "שמפניה" },
+  { hex: "#fce7f3", label: "ורוד בהיר" },
+  { hex: "#dbeafe", label: "תכלת" },
+  { hex: "#d1fae5", label: "מנטה" },
+  { hex: "#e0e7ff", label: "אינדיגו בהיר" },
+  { hex: "#fde68a", label: "זהב בהיר" },
+  { hex: "#d4ddd0", label: "ירוק אפור" },
+  { hex: "#f5e0e0", label: "אפרסק" },
+  { hex: "#e8ecf8", label: "כחול קרח" },
+  { hex: "#1a1a2e", label: "כחול כהה" },
+  { hex: "#111111", label: "שחור" },
+  { hex: "#2d1b3d", label: "סגול כהה" },
+  { hex: "#0c1929", label: "כחול עמוק" },
+  { hex: "#1c1917", label: "חום כהה" },
+  { hex: "#1a3a2a", label: "ירוק כהה" },
+  { hex: "#431407", label: "בורדו" },
+  { hex: "#0f172a", label: "כחול חצות" },
+];
+
+// Type-specific customizations
+const LOGO_IDEAS = [
+  { he: "לוגו מודרני עם טיפוגרפיה", en: "Modern typography logo" },
+  { he: "לוגו אייקוני מינימלי", en: "Minimal icon logo" },
+  { he: "לוגו עם גרדיאנט צבעוני", en: "Gradient color logo" },
+  { he: "לוגו בסגנון חותמת", en: "Stamp style logo" },
+];
+
+const PROFILE_POSES = [
+  { he: "עומד/ת — מבט ישר", en: "Standing — direct gaze" },
+  { he: "יושב/ת — חצי גוף", en: "Sitting — half body" },
+  { he: "תקריב פנים מקצועי", en: "Professional headshot" },
+  { he: "עמידה צדדית אלגנטית", en: "Elegant side pose" },
 ];
 
 interface TextOverlay {
@@ -35,24 +74,38 @@ interface TextOverlay {
   badge: string;
 }
 
+type WizardStep = "type" | "upload" | "style" | "customize";
+
 const ProductPhotoStudioPage = () => {
   const { t, lang } = useI18n();
   const isHe = lang === "he";
   const BackArrow = isHe ? ArrowRight : ArrowLeft;
+  const NextArrow = isHe ? ChevronLeft : ChevronRight;
+  const PrevArrow = isHe ? ChevronRight : ChevronLeft;
   const fileRef = useRef<HTMLInputElement>(null);
 
+  // Wizard state
+  const [step, setStep] = useState<WizardStep>("type");
+  const [productType, setProductType] = useState<ProductType>("product");
+  const [designStyle, setDesignStyle] = useState<DesignStyle>("minimal");
+  const [bgColor, setBgColor] = useState("#ffffff");
   const [originalImage, setOriginalImage] = useState<string | null>(null);
   const [resultImage, setResultImage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [selectedBg, setSelectedBg] = useState<BgOption>("white");
-  const [customBg, setCustomBg] = useState("");
-  const [style, setStyle] = useState("clean");
-  const [brightness, setBrightness] = useState(50);
-  const [contrast, setContrast] = useState(50);
-  const [warmth, setWarmth] = useState(50);
-  const [comparePos, setComparePos] = useState(50);
-  const [sidebarTab, setSidebarTab] = useState<"upload" | "background" | "lighting" | "elements">("upload");
   const [textOverlay, setTextOverlay] = useState<TextOverlay>({ productName: "", price: "", description: "", badge: "" });
+
+  // Profile-specific
+  const [selectedPose, setSelectedPose] = useState(0);
+  const [bodyType, setBodyType] = useState("");
+  const [clothingStyle, setClothingStyle] = useState("");
+  const [headCovering, setHeadCovering] = useState(false);
+
+  // Logo-specific
+  const [selectedLogoIdea, setSelectedLogoIdea] = useState(0);
+
+  const steps: WizardStep[] = ["type", "upload", "style", "customize"];
+  const currentStepIndex = steps.indexOf(step);
+  const progress = ((currentStepIndex + 1) / steps.length) * 100;
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -68,21 +121,37 @@ const ProductPhotoStudioPage = () => {
   };
 
   const handleEnhance = async () => {
-    if (!originalImage) return;
     setIsProcessing(true);
     try {
-      const bgOpt = BG_OPTIONS.find(b => b.id === selectedBg);
-      const bgPrompt = selectedBg === "custom" && customBg ? customBg : bgOpt?.prompt || "white studio";
-      const styleLabel = STYLES.find(s => s.id === style)?.en || "clean";
+      const styleLabel = DESIGN_STYLES.find(s => s.id === designStyle)?.en || "minimalist";
+      const bgIsLight = BG_COLORS.find(c => c.hex === bgColor);
+      const bgDesc = `background color ${bgColor}`;
 
-      let textPromptPart = "";
-      if (textOverlay.productName) textPromptPart += ` Include product name text "${textOverlay.productName}" elegantly placed.`;
-      if (textOverlay.price) textPromptPart += ` Show price label "${textOverlay.price}" in a clean tag/badge.`;
-      if (textOverlay.badge) textPromptPart += ` Add a "${textOverlay.badge}" badge/ribbon.`;
+      let prompt = "";
 
-      const prompt = `Professional product photography. Place this product on a ${bgPrompt}. Style: ${styleLabel}. Apply professional studio lighting with soft shadows. High-end commercial quality, perfect composition, premium look. Brightness: ${brightness > 50 ? "bright" : brightness < 50 ? "dark moody" : "balanced"}. Color temperature: ${warmth > 50 ? "warm golden" : warmth < 50 ? "cool blue" : "neutral"}.${textPromptPart}`;
+      if (productType === "logo") {
+        const idea = LOGO_IDEAS[selectedLogoIdea]?.en || "modern logo";
+        prompt = `Create a ${idea}. Style: ${styleLabel}. Background: ${bgDesc}. Professional, clean, high resolution. Perfect for business branding.`;
+      } else if (productType === "profile") {
+        const pose = PROFILE_POSES[selectedPose]?.en || "professional headshot";
+        let extras = "";
+        if (bodyType) extras += ` Body type: ${bodyType}.`;
+        if (clothingStyle) extras += ` Clothing: ${clothingStyle}.`;
+        if (headCovering) extras += ` Include head covering.`;
+        prompt = `Professional business profile photo. Pose: ${pose}. Style: ${styleLabel}. Background: ${bgDesc}.${extras} High-end quality, realistic, professional look.`;
+      } else if (productType === "banner") {
+        prompt = `Professional marketing banner. Style: ${styleLabel}. Background: ${bgDesc}. Perfect composition, commercial quality, wide format suitable for social media or website header.`;
+      } else {
+        prompt = `Professional product photography. Style: ${styleLabel}. Background: ${bgDesc}. Studio lighting, soft shadows, high-end commercial quality, perfect composition.`;
+      }
 
-      const result = await generateImage(prompt, originalImage);
+      // Add text overlay instructions with exact text preservation
+      if (textOverlay.productName) prompt += ` Include product name text exactly as: "${textOverlay.productName}" — preserve this text character by character.`;
+      if (textOverlay.price) prompt += ` Show price label exactly as: "${textOverlay.price}" — preserve exactly as written.`;
+      if (textOverlay.description) prompt += ` Include description exactly as: "${textOverlay.description}" — keep exact spelling.`;
+      if (textOverlay.badge) prompt += ` Add badge text exactly as: "${textOverlay.badge}".`;
+
+      const result = await generateImage(prompt, originalImage || undefined);
       setResultImage(result);
     } catch (err) {
       console.error("Enhancement failed:", err);
@@ -99,11 +168,63 @@ const ProductPhotoStudioPage = () => {
     a.click();
   };
 
+  const canProceed = () => {
+    if (step === "type") return true;
+    if (step === "upload") return true; // image is optional for some types
+    if (step === "style") return true;
+    return true;
+  };
+
+  const goNext = () => {
+    const idx = steps.indexOf(step);
+    if (idx < steps.length - 1) setStep(steps[idx + 1]);
+  };
+
+  const goPrev = () => {
+    const idx = steps.indexOf(step);
+    if (idx > 0) setStep(steps[idx - 1]);
+  };
+
+  // Result view
+  if (resultImage) {
+    return (
+      <div className="min-h-screen pb-24">
+        <div className="sticky top-0 z-40 glass-card border-b border-border/40 px-4 py-3">
+          <div className="flex items-center justify-between max-w-lg mx-auto">
+            <div className="flex items-center gap-3">
+              <button onClick={() => setResultImage(null)} className="glass-card p-2 rounded-lg hover:scale-105 transition-all"><BackArrow size={18} className="text-foreground" /></button>
+              <h1 className="text-base font-bold text-foreground">{isHe ? "התוצאה שלך" : "Your Result"}</h1>
+            </div>
+            <SparkleIcon size={18} />
+          </div>
+        </div>
+        <div className="max-w-lg mx-auto px-4 pt-6 space-y-4">
+          <div className="glass-card rounded-2xl p-3 animate-fade-in-up">
+            <img src={resultImage} alt="Result" className="w-full rounded-xl" />
+          </div>
+          <div className="space-y-2">
+            <button onClick={handleDownload} className="w-full gradient-glow glow-shadow text-primary-foreground font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 hover:scale-[1.02] transition-all">
+              <Download size={18} />{isHe ? "הורדה" : "Download"}
+            </button>
+            <div className="flex gap-2">
+              <button onClick={() => { setResultImage(null); handleEnhance(); }} className="flex-1 glass-card py-3 rounded-xl text-sm font-bold text-foreground flex items-center justify-center gap-2 hover:scale-[1.02] transition-all">
+                <RefreshCw size={16} />{isHe ? "גרסה נוספת" : "Another Version"}
+              </button>
+              <button onClick={() => { setResultImage(null); setStep("type"); }} className="flex-1 glass-card py-3 rounded-xl text-sm font-bold text-foreground flex items-center justify-center gap-2 hover:scale-[1.02] transition-all">
+                <Sparkles size={16} />{isHe ? "התחל מחדש" : "Start Over"}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen pb-24 flex flex-col">
+    <div className="min-h-screen pb-24">
       {/* Header */}
       <div className="sticky top-0 z-40 glass-card border-b border-border/40 px-4 py-3">
-        <div className="flex items-center justify-between max-w-6xl mx-auto">
+        <div className="flex items-center justify-between max-w-lg mx-auto">
           <div className="flex items-center gap-3">
             <Link to="/create" className="glass-card p-2 rounded-lg hover:scale-105 transition-all">
               <BackArrow size={18} className="text-foreground" />
@@ -113,190 +234,234 @@ const ProductPhotoStudioPage = () => {
               <p className="text-xs text-muted-foreground">{t("photo.subtitle")}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            {resultImage && (
-              <button onClick={handleDownload} className="glass-card px-3 py-2 rounded-lg text-xs font-medium text-foreground flex items-center gap-1.5 hover:scale-105 transition-all">
-                <Download size={14} />
-                {isHe ? "הורדה" : "Download"}
-              </button>
-            )}
-            <SparkleIcon size={18} />
-          </div>
+          <SparkleIcon size={18} />
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col lg:flex-row max-w-6xl mx-auto w-full px-4 pt-4 gap-4">
-
-        {/* ═══ Preview Area (compact) ═══ */}
-        <div className="lg:w-[280px] w-full flex flex-col gap-3 shrink-0">
-          {!originalImage ? (
-            <div onClick={() => fileRef.current?.click()} className="h-[200px] rounded-xl border-2 border-dashed border-border/40 flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-primary/40 transition-all group">
-              <div className="w-14 h-14 rounded-xl glass-card flex items-center justify-center group-hover:scale-110 transition-all">
-                <Upload size={24} className="text-muted-foreground" />
-              </div>
-              <div className="text-center">
-                <p className="text-xs font-bold text-foreground">{isHe ? "העלה תמונת מוצר" : "Upload Product Photo"}</p>
-                <p className="text-[10px] text-muted-foreground mt-0.5">{isHe ? "תמונה מהטלפון, לוגו, או צילום מוצר" : "Phone photo, logo, or product shot"}</p>
-              </div>
-            </div>
-          ) : (
-            <div className="relative rounded-xl overflow-hidden shadow-lg bg-muted/30 h-[200px]">
-              <div className="absolute inset-0">
-                <img src={originalImage} alt="Original" className="w-full h-full object-contain" />
-                <div className="absolute top-2 start-2 glass-card px-1.5 py-0.5 rounded text-[9px] font-bold text-foreground">{isHe ? "לפני" : "Before"}</div>
-              </div>
-              {resultImage && (
-                <div className="absolute inset-0 overflow-hidden" style={{ clipPath: `inset(0 0 0 ${comparePos}%)` }}>
-                  <img src={resultImage} alt="Enhanced" className="w-full h-full object-contain" />
-                  <div className="absolute top-2 end-2 glass-card px-1.5 py-0.5 rounded text-[9px] font-bold text-primary-foreground gradient-glow">{isHe ? "אחרי" : "After"}</div>
-                </div>
-              )}
-              {resultImage && (
-                <div className="absolute inset-0">
-                  <input type="range" min={0} max={100} value={comparePos} onChange={e => setComparePos(Number(e.target.value))} className="absolute top-1/2 left-0 w-full -translate-y-1/2 z-10 opacity-0 cursor-col-resize h-full" />
-                  <div className="absolute top-0 bottom-0 w-0.5 bg-white/80 shadow-lg" style={{ left: `${comparePos}%` }}>
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white/90 shadow-lg flex items-center justify-center">
-                      <div className="flex gap-0.5"><div className="w-0.5 h-2.5 bg-muted-foreground rounded-full" /><div className="w-0.5 h-2.5 bg-muted-foreground rounded-full" /></div>
-                    </div>
-                  </div>
-                </div>
-              )}
-              <button onClick={() => { setOriginalImage(null); setResultImage(null); }} className="absolute top-2 end-2 glass-card p-1 rounded hover:scale-110 transition-all z-20">
-                <X size={12} className="text-foreground" />
-              </button>
-            </div>
-          )}
-
-          <button onClick={handleEnhance} disabled={!originalImage || isProcessing} className="w-full gradient-glow glow-shadow text-primary-foreground font-bold py-3 rounded-xl flex items-center justify-center gap-2 hover:scale-[1.02] transition-all disabled:opacity-50 text-sm">
-            {isProcessing ? <><Loader2 size={16} className="animate-spin" />{isHe ? "משדרג תמונה..." : "Enhancing..."}</> : <><Sparkles size={16} />{isHe ? "שדרג תמונה" : "Enhance Photo"}</>}
-          </button>
-          {resultImage && (
-            <div className="flex gap-2">
-              <button onClick={handleDownload} className="flex-1 glass-card py-2.5 rounded-xl text-xs font-bold text-foreground flex items-center justify-center gap-1.5 hover:scale-[1.02] transition-all">
-                <Download size={14} />{isHe ? "הורדה" : "Download"}
-              </button>
-              <button onClick={() => setResultImage(null)} className="glass-card px-3 py-2.5 rounded-xl text-xs font-bold text-foreground flex items-center gap-1.5 hover:scale-[1.02] transition-all">
-                <RefreshCw size={14} />
-              </button>
-            </div>
-          )}
-          <button onClick={() => fileRef.current?.click()} className="w-full glass-card py-2 rounded-xl text-xs font-medium text-muted-foreground flex items-center justify-center gap-1.5 hover:text-foreground transition-all">
-            <Upload size={13} />{isHe ? "העלה תמונה חדשה" : "Upload New Photo"}
-          </button>
-          <input ref={fileRef} type="file" accept="image/*" onChange={handleUpload} className="hidden" />
+      {/* Progress bar */}
+      <div className="max-w-lg mx-auto px-4 pt-4">
+        <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden mb-1">
+          <div className="h-full gradient-glow rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
         </div>
+        <div className="flex justify-between text-[9px] text-muted-foreground mb-6">
+          <span className={currentStepIndex >= 0 ? "text-primary font-bold" : ""}>{isHe ? "סוג" : "Type"}</span>
+          <span className={currentStepIndex >= 1 ? "text-primary font-bold" : ""}>{isHe ? "תמונה" : "Photo"}</span>
+          <span className={currentStepIndex >= 2 ? "text-primary font-bold" : ""}>{isHe ? "סגנון" : "Style"}</span>
+          <span className={currentStepIndex >= 3 ? "text-primary font-bold" : ""}>{isHe ? "התאמה" : "Customize"}</span>
+        </div>
+      </div>
 
-        {/* ═══ Sidebar Controls ═══ */}
-        <div className="flex-1 min-w-0 space-y-4">
-          <div className="flex gap-1 glass-card rounded-xl p-1">
-            {([
-              { id: "upload" as const, icon: ImageIcon, label: isHe ? "תמונה" : "Image" },
-              { id: "background" as const, icon: Layers, label: isHe ? "רקע" : "BG" },
-              { id: "lighting" as const, icon: Sun, label: isHe ? "תאורה" : "Light" },
-              { id: "elements" as const, icon: Tag, label: isHe ? "טקסט" : "Text" },
-            ]).map(tab => (
-              <button key={tab.id} onClick={() => setSidebarTab(tab.id)} className={`flex-1 flex items-center justify-center gap-1 py-2 px-1.5 rounded-lg text-[10px] font-bold transition-all ${sidebarTab === tab.id ? "gradient-glow text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
-                <tab.icon size={13} />
-                {tab.label}
-              </button>
-            ))}
-          </div>
+      <div className="max-w-lg mx-auto px-4 space-y-4">
 
-          {/* Upload tab */}
-          {sidebarTab === "upload" && (
-            <div className="space-y-4 animate-fade-in-up">
-              <div className="glass-card rounded-xl p-4 space-y-3">
-                <label className="text-xs font-bold text-foreground">{isHe ? "סגנון עיצוב" : "Style"}</label>
-                <div className="grid grid-cols-3 gap-1.5">
-                  {STYLES.map(s => (
-                    <button key={s.id} onClick={() => setStyle(s.id)} className={`px-2 py-1.5 rounded-lg text-xs font-medium transition-all ${style === s.id ? "gradient-glow text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"}`}>
-                      {isHe ? s.he : s.en}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Background tab */}
-          {sidebarTab === "background" && (
-            <div className="space-y-4 animate-fade-in-up">
-              <div className="glass-card rounded-xl p-4 space-y-3">
-                <label className="text-xs font-bold text-foreground">{isHe ? "רקע" : "Background"}</label>
-                <div className="grid grid-cols-2 gap-1.5">
-                  {BG_OPTIONS.map(bg => (
-                    <button key={bg.id} onClick={() => setSelectedBg(bg.id)} className={`px-2 py-2 rounded-lg text-xs font-medium transition-all ${selectedBg === bg.id ? "gradient-glow text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"}`}>
-                      {isHe ? bg.he : bg.en}
-                    </button>
-                  ))}
-                </div>
-                {selectedBg === "custom" && (
-                  <input value={customBg} onChange={e => setCustomBg(e.target.value)} placeholder={isHe ? "תאר את הרקע הרצוי..." : "Describe your desired background..."} className="w-full bg-background/50 border border-border/50 rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/50" />
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Lighting tab */}
-          {sidebarTab === "lighting" && (
-            <div className="space-y-4 animate-fade-in-up">
-              <div className="glass-card rounded-xl p-4 space-y-4">
-                {([
-                  { label: isHe ? "בהירות" : "Brightness", value: brightness, set: setBrightness, icon: Sun },
-                  { label: isHe ? "קונטרסט" : "Contrast", value: contrast, set: setContrast, icon: Contrast },
-                  { label: isHe ? "חמימות" : "Warmth", value: warmth, set: setWarmth, icon: Thermometer },
-                ]).map(slider => (
-                  <div key={slider.label} className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1.5">
-                        <slider.icon size={13} className="text-muted-foreground" />
-                        <span className="text-xs font-bold text-foreground">{slider.label}</span>
-                      </div>
-                      <span className="text-[10px] text-muted-foreground">{slider.value}%</span>
+        {/* ═══ Step 1: Type Selection ═══ */}
+        {step === "type" && (
+          <div className="space-y-4 animate-fade-in-up">
+            <h2 className="text-lg font-bold text-foreground text-center">{isHe ? "מה תרצה ליצור?" : "What do you want to create?"}</h2>
+            <div className="grid grid-cols-2 gap-3">
+              {PRODUCT_TYPES.map(pt => {
+                const Icon = pt.icon;
+                return (
+                  <button
+                    key={pt.id}
+                    onClick={() => setProductType(pt.id)}
+                    className={`glass-card rounded-2xl p-4 flex flex-col items-center gap-2 transition-all hover:scale-[1.03] ${productType === pt.id ? "ring-2 ring-primary glow-shadow" : ""}`}
+                  >
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${productType === pt.id ? "gradient-glow" : "bg-muted"}`}>
+                      <Icon size={20} className={productType === pt.id ? "text-primary-foreground" : "text-muted-foreground"} />
                     </div>
-                    <input type="range" min={0} max={100} value={slider.value} onChange={e => slider.set(Number(e.target.value))} className="w-full h-1.5 bg-muted rounded-full appearance-none cursor-pointer accent-primary" />
+                    <span className="text-sm font-bold text-foreground">{isHe ? pt.he : pt.en}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ═══ Step 2: Upload Image ═══ */}
+        {step === "upload" && (
+          <div className="space-y-4 animate-fade-in-up">
+            <h2 className="text-lg font-bold text-foreground text-center">{isHe ? "העלה תמונה" : "Upload Image"}</h2>
+            <p className="text-sm text-muted-foreground text-center">{isHe ? "ניתן לדלג ולתת ל-AI ליצור מאפס" : "You can skip and let AI create from scratch"}</p>
+
+            {!originalImage ? (
+              <div className="space-y-3">
+                <div onClick={() => fileRef.current?.click()} className="h-[160px] rounded-2xl border-2 border-dashed border-border/40 flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-primary/40 transition-all group">
+                  <div className="flex gap-3">
+                    <div className="w-12 h-12 rounded-xl glass-card flex items-center justify-center group-hover:scale-110 transition-all">
+                      <Camera size={20} className="text-muted-foreground" />
+                    </div>
+                    <div className="w-12 h-12 rounded-xl glass-card flex items-center justify-center group-hover:scale-110 transition-all">
+                      <ImageIcon size={20} className="text-muted-foreground" />
+                    </div>
+                    <div className="w-12 h-12 rounded-xl glass-card flex items-center justify-center group-hover:scale-110 transition-all">
+                      <Upload size={20} className="text-muted-foreground" />
+                    </div>
                   </div>
+                  <div className="text-center">
+                    <p className="text-xs font-bold text-foreground">{isHe ? "לחצו להעלאת תמונה" : "Click to Upload"}</p>
+                    <p className="text-[10px] text-muted-foreground">{isHe ? "תמונה מהטלפון, לוגו או צילום מוצר" : "Phone photo, logo or product shot"}</p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="relative rounded-2xl overflow-hidden glass-card p-2">
+                <img src={originalImage} alt="Uploaded" className="w-full rounded-xl max-h-[200px] object-contain" />
+                <button onClick={() => setOriginalImage(null)} className="absolute top-4 end-4 glass-card p-1.5 rounded-lg hover:scale-110 transition-all">
+                  <X size={14} className="text-foreground" />
+                </button>
+              </div>
+            )}
+            <input ref={fileRef} type="file" accept="image/*" onChange={handleUpload} className="hidden" />
+          </div>
+        )}
+
+        {/* ═══ Step 3: Style ═══ */}
+        {step === "style" && (
+          <div className="space-y-5 animate-fade-in-up">
+            {/* Design style */}
+            <div className="glass-card rounded-xl p-4 space-y-3">
+              <label className="text-xs font-bold text-foreground">{isHe ? "סגנון עיצוב" : "Design Style"}</label>
+              <div className="grid grid-cols-3 gap-1.5">
+                {DESIGN_STYLES.map(s => (
+                  <button key={s.id} onClick={() => setDesignStyle(s.id)} className={`px-2 py-2 rounded-lg text-xs font-medium transition-all ${designStyle === s.id ? "gradient-glow text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"}`}>
+                    {isHe ? s.he : s.en}
+                  </button>
                 ))}
               </div>
             </div>
-          )}
 
-          {/* Elements/Text tab */}
-          {sidebarTab === "elements" && (
-            <div className="space-y-4 animate-fade-in-up">
+            {/* Background color */}
+            <div className="glass-card rounded-xl p-4 space-y-3">
+              <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                <Palette size={13} />{isHe ? "צבע רקע" : "Background Color"}
+              </label>
+              <div className="grid grid-cols-10 gap-1.5">
+                {BG_COLORS.map(c => (
+                  <button
+                    key={c.hex}
+                    onClick={() => setBgColor(c.hex)}
+                    className={`w-full aspect-square rounded-lg border-2 transition-all hover:scale-110 ${bgColor === c.hex ? "border-primary ring-2 ring-primary/30 scale-110" : "border-border/30"}`}
+                    style={{ backgroundColor: c.hex }}
+                    title={c.label}
+                  />
+                ))}
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-muted-foreground">{isHe ? "צבע מותאם:" : "Custom:"}</span>
+                <input type="color" value={bgColor} onChange={e => setBgColor(e.target.value)} className="w-7 h-7 rounded-lg cursor-pointer border border-border/30" />
+                <span className="text-[10px] text-muted-foreground font-mono">{bgColor}</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ═══ Step 4: Customize per type ═══ */}
+        {step === "customize" && (
+          <div className="space-y-4 animate-fade-in-up">
+            {/* Logo ideas */}
+            {productType === "logo" && (
               <div className="glass-card rounded-xl p-4 space-y-3">
-                <label className="text-xs font-bold text-foreground">{isHe ? "טקסט על התמונה" : "Text Overlay"}</label>
-                <p className="text-[10px] text-muted-foreground">{isHe ? "הטקסט ישולב בתמונה שה-AI ייצור" : "Text will be included in the AI-generated image"}</p>
-
-                <div className="space-y-2">
-                  <label className="text-[10px] text-muted-foreground uppercase tracking-wider flex items-center gap-1"><Type size={10} />{isHe ? "שם מוצר" : "Product Name"}</label>
-                  <input value={textOverlay.productName} onChange={e => setTextOverlay(prev => ({ ...prev, productName: e.target.value }))} placeholder={isHe ? "לדוגמה: קרם לחות פנים" : "e.g. Facial Moisturizer"} className="w-full bg-background/50 border border-border/50 rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/50" />
+                <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                  <Sparkles size={13} />{isHe ? "רעיונות לעיצוב לוגו" : "Logo Design Ideas"}
+                </label>
+                <div className="space-y-1.5">
+                  {LOGO_IDEAS.map((idea, i) => (
+                    <button key={i} onClick={() => setSelectedLogoIdea(i)} className={`w-full text-start px-3 py-2.5 rounded-lg text-sm transition-all ${selectedLogoIdea === i ? "gradient-glow text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"}`}>
+                      {isHe ? idea.he : idea.en}
+                    </button>
+                  ))}
                 </div>
+              </div>
+            )}
 
-                <div className="space-y-2">
-                  <label className="text-[10px] text-muted-foreground uppercase tracking-wider flex items-center gap-1"><Tag size={10} />{isHe ? "מחיר" : "Price"}</label>
-                  <input value={textOverlay.price} onChange={e => setTextOverlay(prev => ({ ...prev, price: e.target.value }))} placeholder={isHe ? "לדוגמה: ₪149" : "e.g. $29.99"} className="w-full bg-background/50 border border-border/50 rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/50" />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-[10px] text-muted-foreground uppercase tracking-wider flex items-center gap-1"><Droplet size={10} />{isHe ? "תיאור קצר" : "Short Description"}</label>
-                  <input value={textOverlay.description} onChange={e => setTextOverlay(prev => ({ ...prev, description: e.target.value }))} placeholder={isHe ? "לדוגמה: 100% טבעי" : "e.g. 100% Natural"} className="w-full bg-background/50 border border-border/50 rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/50" />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-[10px] text-muted-foreground uppercase tracking-wider flex items-center gap-1"><Sparkles size={10} />{isHe ? "תגית" : "Badge"}</label>
-                  <div className="grid grid-cols-2 gap-1.5">
-                    {(isHe ? ["חדש!", "מבצע", "הנמכר ביותר", "מהדורה מוגבלת"] : ["New!", "Sale", "Best Seller", "Limited Edition"]).map(badge => (
-                      <button key={badge} onClick={() => setTextOverlay(prev => ({ ...prev, badge: prev.badge === badge ? "" : badge }))} className={`px-2 py-1.5 rounded-lg text-xs font-medium transition-all ${textOverlay.badge === badge ? "gradient-glow text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"}`}>
-                        {badge}
+            {/* Profile poses & body questions */}
+            {productType === "profile" && (
+              <>
+                <div className="glass-card rounded-xl p-4 space-y-3">
+                  <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                    <User size={13} />{isHe ? "תנוחה" : "Pose"}
+                  </label>
+                  <div className="space-y-1.5">
+                    {PROFILE_POSES.map((pose, i) => (
+                      <button key={i} onClick={() => setSelectedPose(i)} className={`w-full text-start px-3 py-2.5 rounded-lg text-sm transition-all ${selectedPose === i ? "gradient-glow text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"}`}>
+                        {isHe ? pose.he : pose.en}
                       </button>
                     ))}
                   </div>
                 </div>
+
+                <div className="glass-card rounded-xl p-4 space-y-3">
+                  <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                    <ShieldCheck size={13} />{isHe ? "שדרוג דמות — פרטים לדיוק מירבי" : "Character Details for Best Results"}
+                  </label>
+                  <div className="space-y-2">
+                    <div>
+                      <label className="text-[10px] text-muted-foreground">{isHe ? "מבנה גוף" : "Body Type"}</label>
+                      <input value={bodyType} onChange={e => setBodyType(e.target.value)} placeholder={isHe ? "לדוגמה: רזה, ממוצע, מלא..." : "e.g. slim, average, full..."} className="w-full bg-background/50 border border-border/50 rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/50" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-muted-foreground">{isHe ? "סוג לבוש" : "Clothing Style"}</label>
+                      <input value={clothingStyle} onChange={e => setClothingStyle(e.target.value)} placeholder={isHe ? "לדוגמה: חולצה לבנה, חליפה..." : "e.g. white shirt, suit..."} className="w-full bg-background/50 border border-border/50 rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/50" />
+                    </div>
+                    <label className="flex items-center gap-2 py-1 cursor-pointer">
+                      <input type="checkbox" checked={headCovering} onChange={e => setHeadCovering(e.target.checked)} className="rounded border-border accent-primary" />
+                      <span className="text-sm text-foreground">{isHe ? "לכלול כיסוי ראש" : "Include head covering"}</span>
+                    </label>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Text overlay for product/banner */}
+            {(productType === "product" || productType === "banner") && (
+              <div className="glass-card rounded-xl p-4 space-y-3">
+                <label className="text-xs font-bold text-foreground">{isHe ? "טקסט על התמונה" : "Text Overlay"}</label>
+                <p className="text-[10px] text-muted-foreground">{isHe ? "הטקסט יועתק בדיוק כפי שנכתב" : "Text will be copied exactly as written"}</p>
+                <div className="space-y-2">
+                  <div>
+                    <label className="text-[10px] text-muted-foreground flex items-center gap-1"><Type size={10} />{isHe ? "שם מוצר" : "Product Name"}</label>
+                    <input value={textOverlay.productName} onChange={e => setTextOverlay(p => ({ ...p, productName: e.target.value }))} placeholder={isHe ? "לדוגמה: קרם לחות פנים" : "e.g. Facial Moisturizer"} className="w-full bg-background/50 border border-border/50 rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/50" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-muted-foreground flex items-center gap-1"><Tag size={10} />{isHe ? "מחיר" : "Price"}</label>
+                    <input value={textOverlay.price} onChange={e => setTextOverlay(p => ({ ...p, price: e.target.value }))} placeholder={isHe ? "לדוגמה: ₪149" : "e.g. $29.99"} className="w-full bg-background/50 border border-border/50 rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/50" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-muted-foreground flex items-center gap-1"><Droplet size={10} />{isHe ? "תיאור קצר" : "Description"}</label>
+                    <input value={textOverlay.description} onChange={e => setTextOverlay(p => ({ ...p, description: e.target.value }))} placeholder={isHe ? "לדוגמה: 100% טבעי" : "e.g. 100% Natural"} className="w-full bg-background/50 border border-border/50 rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/50" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-muted-foreground flex items-center gap-1"><Sparkles size={10} />{isHe ? "תגית" : "Badge"}</label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {(isHe ? ["חדש!", "מבצע", "הנמכר ביותר", "מהדורה מוגבלת"] : ["New!", "Sale", "Best Seller", "Limited"]).map(b => (
+                        <button key={b} onClick={() => setTextOverlay(p => ({ ...p, badge: p.badge === b ? "" : b }))} className={`px-2 py-1 rounded-lg text-[10px] font-medium transition-all ${textOverlay.badge === b ? "gradient-glow text-primary-foreground" : "bg-muted text-muted-foreground"}`}>{b}</button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+
+            {/* Generate button */}
+            <button onClick={handleEnhance} disabled={isProcessing} className="w-full gradient-glow glow-shadow text-primary-foreground font-bold py-4 rounded-xl text-base flex items-center justify-center gap-2 hover:scale-[1.02] transition-all disabled:opacity-50">
+              {isProcessing ? <><Loader2 size={20} className="animate-spin" />{isHe ? "יוצר תמונה..." : "Creating..."}</> : <><Sparkles size={20} />{isHe ? "צור תמונה" : "Create Image"}</>}
+            </button>
+          </div>
+        )}
+
+        {/* Navigation buttons */}
+        {step !== "customize" && (
+          <div className="flex items-center gap-3 pt-2">
+            {currentStepIndex > 0 && (
+              <button onClick={goPrev} className="glass-card px-4 py-3 rounded-xl text-sm font-bold text-foreground flex items-center gap-1.5 hover:scale-[1.02] transition-all">
+                <PrevArrow size={16} />{isHe ? "חזרה" : "Back"}
+              </button>
+            )}
+            <button onClick={goNext} className="flex-1 gradient-glow glow-shadow text-primary-foreground font-bold py-3 rounded-xl text-sm flex items-center justify-center gap-1.5 hover:scale-[1.02] transition-all">
+              {isHe ? "המשך" : "Continue"}<NextArrow size={16} />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

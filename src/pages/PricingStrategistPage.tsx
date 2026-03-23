@@ -97,8 +97,8 @@ const PricingStrategistPage = () => {
             <Field label={t("pricing.fixedExpenses")} icon={<DollarSign size={12} />} value={fixedExpenses} onChange={setFixedExpenses} suffix="₪" placeholder={isHe ? "לדוגמה: 3000" : "e.g. 3000"} />
           </div>
           <div>
-            <label className="text-xs font-semibold text-foreground mb-1.5 flex items-center justify-between">
-              <span className="flex items-center gap-1"><TrendingUp size={12} />{t("pricing.desiredProfit")}</span>
+             <label className="text-xs font-semibold text-foreground mb-1.5 flex items-center justify-between">
+              <span className="flex items-center gap-1"><TrendingUp size={12} />{isHe ? "יעד רווחיות" : "Profitability Target"}</span>
               <span className="gradient-glow-text font-black">{desiredProfit}%</span>
             </label>
             <input type="range" min="10" max="100" value={desiredProfit} onChange={e => setDesiredProfit(e.target.value)} className="w-full h-2 bg-muted rounded-full appearance-none cursor-pointer accent-primary" />
