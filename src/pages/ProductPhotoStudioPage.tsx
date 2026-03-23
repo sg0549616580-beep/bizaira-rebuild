@@ -336,14 +336,14 @@ const ProductPhotoStudioPage = () => {
               <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
                 <Palette size={13} />{isHe ? "צבע רקע" : "Background Color"}
               </label>
-              <div className="grid grid-cols-10 gap-1.5">
-                {BG_COLORS.map(c => (
+              <div className="grid grid-cols-10 gap-1.5 max-h-[200px] overflow-y-auto pr-1">
+                {BG_COLORS.map(color => (
                   <button
-                    key={c.hex}
-                    onClick={() => setBgColor(c.hex)}
-                    className={`w-full aspect-square rounded-lg border-2 transition-all hover:scale-110 ${bgColor === c.hex ? "border-primary ring-2 ring-primary/30 scale-110" : "border-border/30"}`}
-                    style={{ backgroundColor: c.hex }}
-                    title={c.label}
+                    key={color}
+                    onClick={() => setBgColor(color)}
+                    className={`w-full aspect-square rounded-lg border-2 transition-all hover:scale-110 ${bgColor === color ? "border-primary ring-2 ring-primary/30 scale-110" : "border-border/30"}`}
+                    style={{ backgroundColor: color }}
+                    title={color}
                   />
                 ))}
               </div>
