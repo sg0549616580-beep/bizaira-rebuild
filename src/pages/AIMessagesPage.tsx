@@ -16,7 +16,7 @@ const PURPOSES: { id: Purpose; he: string; en: string }[] = [
   { id: "service", he: "הודעת שירות", en: "Service" },
   { id: "reminder", he: "תזכורת", en: "Reminder" },
   { id: "post", he: "פוסט לרשתות", en: "Social Post" },
-  { id: "collection", he: "גבייה עדינה", en: "Collection" },
+  { id: "collection", he: "תזכורת תשלום", en: "Payment Reminder" },
   { id: "launch", he: "הודעת השקה", en: "Launch" },
 ];
 
