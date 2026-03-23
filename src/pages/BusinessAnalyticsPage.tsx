@@ -18,6 +18,7 @@ const BusinessAnalyticsPage = () => {
   const isHe = lang === "he";
   const BackArrow = isHe ? ArrowRight : ArrowLeft;
   const currency = "₪";
+  const { saveEntry, getProgressMessages, history } = useSmartMemory("analytics");
 
   const [monthlyRevenue, setMonthlyRevenue] = useState("");
   const [monthlyExpenses, setMonthlyExpenses] = useState("");
