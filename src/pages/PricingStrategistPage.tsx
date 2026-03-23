@@ -13,6 +13,7 @@ const PricingStrategistPage = () => {
   const { t, lang } = useI18n();
   const isHe = lang === "he";
   const BackArrow = isHe ? ArrowRight : ArrowLeft;
+  const { saveEntry, getProgressMessages } = useSmartMemory("pricing");
 
   const [serviceDuration, setServiceDuration] = useState("");
   const [materialCost, setMaterialCost] = useState("");

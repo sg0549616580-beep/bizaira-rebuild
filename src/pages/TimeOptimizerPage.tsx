@@ -31,8 +31,13 @@ const TimeOptimizerPage = () => {
   const proFeatures = [t("time.proLoadForecast"), t("time.proServiceSim"), t("time.proProfitDay"), t("time.proPricingRec")];
 
   const handleStartAnalysis = () => {
-    if (hours > 0) setDataEntered(true);
+    if (hours > 0) {
+      saveEntry({ hours, hourlyValue, burnout });
+      setDataEntered(true);
+    }
   };
+
+  const progressMessages = getProgressMessages({ hours, hourlyValue, burnout }, lang);
 
   const handleOptimize = async () => {
     setIsOptimizing(true);
