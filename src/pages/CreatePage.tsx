@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import SparkleIcon from "@/components/SparkleIcon";
 import { useI18n } from "@/lib/i18n";
 import {
-  Presentation, Camera, MessageSquare, BarChart3, CalendarClock, DollarSign, Paintbrush,
+  Camera, MessageSquare, BarChart3, CalendarClock, DollarSign,
 } from "lucide-react";
 
 const CreatePage = () => {
