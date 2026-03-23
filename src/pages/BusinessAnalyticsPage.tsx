@@ -197,7 +197,17 @@ const BusinessAnalyticsPage = () => {
               ))}
             </div>
 
-            {/* Profit margin */}
+            {/* Progress messages */}
+            {progressMessages.length > 0 && (
+              <div className="glass-card rounded-xl p-4 space-y-2 border border-primary/20">
+                <div className="flex items-center gap-2 mb-1"><Trophy size={14} className="text-primary" /><span className="text-sm font-bold text-foreground">{isHe ? "מעקב התקדמות" : "Progress Tracking"}</span></div>
+                {progressMessages.map((msg, i) => (
+                  <div key={i} className="bg-primary/5 rounded-lg p-2.5 text-sm text-foreground">{msg}</div>
+                ))}
+              </div>
+            )}
+
+
             <div className="glass-card rounded-xl p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-bold text-foreground">{isHe ? "מרווח רווח" : "Profit Margin"}</span>
