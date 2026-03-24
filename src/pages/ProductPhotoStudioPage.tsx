@@ -17,7 +17,7 @@ const PRODUCT_TYPES: { id: ProductType; he: string; en: string; icon: typeof Cam
   { id: "product", he: "תמונת מוצר", en: "Product Photo", icon: Camera },
   { id: "logo", he: "לוגו", en: "Logo", icon: Sparkles },
   { id: "profile", he: "פרופיל עסקי", en: "Business Profile", icon: User },
-  { id: "banner", he: "באנר", en: "Banner", icon: ImageIcon },
+  { id: "story", he: "סטורי", en: "Story", icon: Layers },
 ];
 
 const DESIGN_STYLES: { id: DesignStyle; he: string; en: string }[] = [
