@@ -397,7 +397,7 @@ const translations: Translations = {
   "faq.q4": { he: "איך מבטלים מנוי?", en: "How do I cancel my subscription?" },
   "faq.a4": { he: "התשלום הוא חד-פעמי לחודש בלבד — אין חיוב אוטומטי. ברגע שתרצו להפסיק, פשוט לא משלמים יותר ולא תחויבו שוב. ללא התחייבות.", en: "Payment is a one-time monthly charge — no auto-billing. When you want to stop, simply don't pay again and you won't be charged. No commitment." },
   "faq.q5": { he: "באיזה פורמטים אפשר להוריד?", en: "What formats are available for download?" },
-  "faq.a5": { he: "תמונות באיכות גבוהה, מצגות ב-PDF מעוצב, חישוב עסקי, תמחור נכון, והכל מותאם לעסק שלך.", en: "High-quality images, presentations in designed PDF, business analytics, smart pricing, and everything tailored for your business." },
+  "faq.a5": { he: "תמונות באיכות גבוהה, חישוב עסקי, תמחור נכון, והכל מותאם לעסק שלך.", en: "High-quality images, business analytics, smart pricing, and everything tailored for your business." },
 
   // Common
   "common.pro": { he: "PRO", en: "PRO" },
