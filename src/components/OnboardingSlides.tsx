@@ -32,7 +32,7 @@ const OnboardingSlides = ({ onComplete }: OnboardingSlidesProps) => {
         },
         {
           title: "Everything Ready for You",
-          desc: "Presentations, product photos, marketing texts and more — all created automatically and tailored exactly to your business, in just a few clicks.",
+          desc: "Product photos, marketing texts, business analytics and more — all created automatically and tailored exactly to your business, in just a few clicks.",
         },
         {
           title: "Simple, Fast & Enjoyable",
