@@ -16,9 +16,9 @@ const translations: Translations = {
   // Home
   "home.hero.title1": { he: "ה-AI שיוצר לעסק שלך", en: "AI That Creates For Your Business" },
   "home.hero.title2": { he: "הכול במקום אחד", en: "Everything In One Place" },
-  "home.hero.desc": { he: "יצירת מצגות, תמונות מוצר, קבצי PDF ותוכן שיווקי — בתוך כמה שניות בלבד בעזרת AI.", en: "Create presentations, product photos, PDFs and marketing content — in just seconds with AI." },
-  "home.slide1.title": { he: "מצגות ותוכן שיווקי", en: "Presentations & Marketing" },
-  "home.slide1.desc": { he: "צרו מצגות עסקיות מקצועיות, הודעות שיווקיות וקבצי PDF — הכול אוטומטי עם AI.", en: "Create professional business presentations, marketing messages and PDFs — all automated with AI." },
+  "home.hero.desc": { he: "יצירת תמונות מוצר, תוכן שיווקי, ניתוח עסקי ועוד — בתוך כמה שניות בלבד בעזרת AI.", en: "Create product photos, marketing content, business analytics and more — in just seconds with AI." },
+  "home.slide1.title": { he: "תוכן שיווקי חכם", en: "Smart Marketing Content" },
+  "home.slide1.desc": { he: "צרו הודעות שיווקיות מקצועיות, תמונות מוצר ותוכן לרשתות — הכול אוטומטי עם AI.", en: "Create professional marketing messages, product photos and social content — all automated with AI." },
   "home.slide2.title": { he: "תמונות מוצר באיכות גבוהה", en: "High-Quality Product Photos" },
   "home.slide2.desc": { he: "העלו תמונה פשוטה והמערכת תיצור תמונה שיווקית מקצועית מוכנה לפרסום.", en: "Upload a simple photo and the system creates a professional marketing image ready to publish." },
   "home.slide3.title": { he: "ניתוח עסקי ותמחור חכם", en: "Business Analytics & Smart Pricing" },
