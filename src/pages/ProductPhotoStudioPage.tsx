@@ -140,8 +140,8 @@ const ProductPhotoStudioPage = () => {
         if (clothingStyle) extras += ` Clothing: ${clothingStyle}.`;
         if (headCovering) extras += ` Include head covering.`;
         prompt = `Professional business profile photo. Pose: ${pose}. Style: ${styleLabel}. Background: ${bgDesc}.${extras} High-end quality, realistic, professional look.`;
-      } else if (productType === "banner") {
-        prompt = `Professional marketing banner. Style: ${styleLabel}. Background: ${bgDesc}. Perfect composition, commercial quality, wide format suitable for social media or website header.`;
+      } else if (productType === "story") {
+        prompt = `Professional Instagram/Facebook story image. Style: ${styleLabel}. Background: ${bgDesc}. Vertical format 9:16 aspect ratio, eye-catching, social media ready, modern design.`;
       } else {
         prompt = `Professional product photography. Style: ${styleLabel}. Background: ${bgDesc}. Studio lighting, soft shadows, high-end commercial quality, perfect composition.`;
       }
