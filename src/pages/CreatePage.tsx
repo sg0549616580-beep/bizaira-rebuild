@@ -61,8 +61,8 @@ const CreatePage = () => {
   };
 
   const suggestions = isHe
-    ? ["💡 רעיון למוצר חדש", "📋 משימות לשבוע", "🎯 מטרות החודש", "💬 משוב מלקוחה", "📸 רעיון לפוסט"]
-    : ["💡 New product idea", "📋 Weekly tasks", "🎯 Monthly goals", "💬 Client feedback", "📸 Post idea"];
+    ? ["רעיון למוצר חדש", "משימות לשבוע", "מטרות החודש", "משוב מלקוחה", "רעיון לפוסט"]
+    : ["New product idea", "Weekly tasks", "Monthly goals", "Client feedback", "Post idea"];
 
   const toolTypes = [
     { id: "product", icon: Camera, titleKey: "tool.photos.title", descKey: "tool.photos.desc", route: "/create/product-photos" },
