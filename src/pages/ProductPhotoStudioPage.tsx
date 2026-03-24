@@ -327,13 +327,21 @@ const ProductPhotoStudioPage = () => {
               <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
                 <Palette size={13} />{isHe ? "צבע רקע" : "Background Color"}
               </label>
-              <div className="flex items-center gap-3">
-                <input type="color" value={bgColor} onChange={e => setBgColor(e.target.value)} className="w-10 h-10 rounded-xl cursor-pointer border-2 border-border/30" />
-                <div className="flex-1">
-                  <span className="text-sm font-medium text-foreground">{bgColor}</span>
-                  <p className="text-[10px] text-muted-foreground">{isHe ? "לחצו לבחירת צבע" : "Click to pick a color"}</p>
-                </div>
-                <div className="w-10 h-10 rounded-xl border-2 border-border/30" style={{ backgroundColor: bgColor }} />
+              <div className="grid grid-cols-10 gap-1.5 max-h-[200px] overflow-y-auto pr-1">
+                {BG_COLORS.map(color => (
+                  <button
+                    key={color}
+                    onClick={() => setBgColor(color)}
+                    className={`w-full aspect-square rounded-lg border-2 transition-all hover:scale-110 ${bgColor === color ? "border-primary ring-2 ring-primary/30 scale-110" : "border-border/30"}`}
+                    style={{ backgroundColor: color }}
+                    title={color}
+                  />
+                ))}
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-muted-foreground">{isHe ? "צבע מותאם:" : "Custom:"}</span>
+                <input type="color" value={bgColor} onChange={e => setBgColor(e.target.value)} className="w-7 h-7 rounded-lg cursor-pointer border border-border/30" />
+                <span className="text-[10px] text-muted-foreground font-mono">{bgColor}</span>
               </div>
             </div>
           </div>
