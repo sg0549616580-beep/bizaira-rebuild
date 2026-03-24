@@ -10,7 +10,7 @@ import {
   Camera, User, Palette, ChevronRight, ChevronLeft, ShieldCheck,
 } from "lucide-react";
 
-type ProductType = "product" | "logo" | "profile" | "banner";
+type ProductType = "product" | "logo" | "profile" | "story";
 type DesignStyle = "minimal" | "card" | "luxury" | "modern" | "soft" | "clean";
 
 const PRODUCT_TYPES: { id: ProductType; he: string; en: string; icon: typeof Camera }[] = [
