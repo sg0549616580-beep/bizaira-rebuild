@@ -20,8 +20,8 @@ const SupportPage = () => {
 
   const features = [
     {
-      title: t("feature.presentation.title"),
-      items: [t("feature.presentation.1"), t("feature.presentation.2"), t("feature.presentation.3"), t("feature.presentation.4")],
+      title: t("feature.studio.title"),
+      items: [t("feature.studio.1"), t("feature.studio.2"), t("feature.studio.3"), t("feature.studio.4")],
     },
     {
       title: t("feature.product.title"),
