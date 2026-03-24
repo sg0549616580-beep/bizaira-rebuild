@@ -406,7 +406,7 @@ const ProductPhotoStudioPage = () => {
             )}
 
             {/* Text overlay for product/banner */}
-            {(productType === "product" || productType === "banner") && (
+            {(productType === "product" || productType === "story") && (
               <div className="glass-card rounded-xl p-4 space-y-3">
                 <label className="text-xs font-bold text-foreground">{isHe ? "טקסט על התמונה" : "Text Overlay"}</label>
                 <p className="text-[10px] text-muted-foreground">{isHe ? "הטקסט יועתק בדיוק כפי שנכתב" : "Text will be copied exactly as written"}</p>

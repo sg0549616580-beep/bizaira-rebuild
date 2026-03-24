@@ -8,13 +8,11 @@ const HomePage = () => {
   const BackArrow = lang === "he" ? ArrowLeft : ArrowRight;
 
   const tools = [
-    { title: t("tool.presentation.title"), desc: t("tool.presentation.desc"), to: "/create/presentation" },
     { title: t("tool.photos.title"), desc: t("tool.photos.desc"), to: "/create/product-photos" },
     { title: t("tool.messages.title"), desc: t("tool.messages.desc"), to: "/create/messages" },
     { title: t("tool.analytics.title"), desc: t("tool.analytics.desc"), to: "/create/analytics" },
     { title: t("tool.time.title"), desc: t("tool.time.desc"), to: "/create/time" },
     { title: t("tool.pricing.title"), desc: t("tool.pricing.desc"), to: "/create/pricing" },
-    { title: t("tool.studio.title"), desc: t("tool.studio.desc"), to: "/create/image-studio" },
   ];
 
   const slides = [

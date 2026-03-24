@@ -54,7 +54,7 @@ const App = () => (
 
               <Route path="/" element={<AppLayout><LandingPage /></AppLayout>} />
               <Route path="/create" element={<AppLayout><CreatePage /></AppLayout>} />
-              <Route path="/create/presentation" element={<AppLayout><PresentationStudioPage /></AppLayout>} />
+              
               <Route path="/create/product-photos" element={<AppLayout><ProductPhotoStudioPage /></AppLayout>} />
               <Route path="/create/messages" element={<AppLayout><AIMessagesPage /></AppLayout>} />
               <Route path="/create/analytics" element={<AppLayout><BusinessAnalyticsPage /></AppLayout>} />
