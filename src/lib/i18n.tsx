@@ -389,7 +389,7 @@ const translations: Translations = {
 
   // FAQ
   "faq.q1": { he: "מה זה BizAIra?", en: "What is BizAIra?" },
-  "faq.a1": { he: "BizAIra היא פלטפורמת AI מתקדמת שמאפשרת לבעלי עסקים ליצור תוכן שיווקי מקצועי — מצגות, תמונות מוצר, הודעות ועוד — בלחיצת כפתור.", en: "BizAIra is an advanced AI platform that enables business owners to create professional marketing content — presentations, product photos, messages and more — with the click of a button." },
+  "faq.a1": { he: "BizAIra היא פלטפורמת AI מתקדמת שמאפשרת לבעלי עסקים ליצור תוכן שיווקי מקצועי — תמונות מוצר, הודעות ועוד — בלחיצת כפתור.", en: "BizAIra is an advanced AI platform that enables business owners to create professional marketing content — product photos, messages and more — with the click of a button." },
   "faq.q2": { he: "כמה עולה השירות?", en: "How much does the service cost?" },
   "faq.a2": { he: "יש גרסה חינמית עם 2 יצירות בחודש. מסלול Pro עולה ₪29/חודש ומסלול Business עולה ₪59/חודש — שימוש ללא הגבלה בכל הכלים, ללא סימני מים ובאיכות גבוהה.", en: "There's a free version with 2 creations per month. Pro plan costs $9/month and Business plan costs $19/month — unlimited use of all tools, no watermarks and high quality." },
   "faq.q3": { he: "האם אני צריך ידע טכני?", en: "Do I need technical knowledge?" },
