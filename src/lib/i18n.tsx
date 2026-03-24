@@ -359,7 +359,7 @@ const translations: Translations = {
   "dash.downloads": { he: "הורדות", en: "Downloads" },
   "dash.quickActions": { he: "פעולות מהירות", en: "Quick Actions" },
   "dash.startCreate": { he: "התחל ליצור", en: "Start Creating" },
-  "dash.startCreateDesc": { he: "מצגות, תמונות, הודעות ועוד", en: "Presentations, photos, messages and more" },
+  "dash.startCreateDesc": { he: "תמונות, הודעות, ניתוח ועוד", en: "Photos, messages, analytics and more" },
   "dash.manageSub": { he: "ניהול מנוי", en: "Manage Subscription" },
   "dash.manageSubDesc": { he: "שדרוג, תשלומים וחשבוניות", en: "Upgrades, payments and invoices" },
   "dash.supportTitle": { he: "תמיכה", en: "Support" },
