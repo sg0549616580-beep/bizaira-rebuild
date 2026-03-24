@@ -30,8 +30,8 @@ const translations: Translations = {
   // Tools
   "tool.video.title": { he: "סרטון תדמית", en: "Promo Video" },
   "tool.video.desc": { he: "סרטון שיווקי מקצועי", en: "Professional marketing video" },
-  "tool.presentation.title": { he: "מצגת עסקית", en: "Business Presentation" },
-  "tool.presentation.desc": { he: "מצגת יוקרתית ברמת סטודיו", en: "Studio-level premium presentation" },
+  "tool.notes.title": { he: "יומן / פתקים", en: "Journal / Notes" },
+  "tool.notes.desc": { he: "רעיונות ותזכורות", en: "Ideas and reminders" },
   "tool.photos.title": { he: "סטודיו תמונות", en: "Photo Studio" },
   "tool.photos.desc": { he: "צילום סטודיו מקצועי", en: "Professional studio photography" },
   "tool.messages.title": { he: "הודעות AI", en: "AI Messages" },
