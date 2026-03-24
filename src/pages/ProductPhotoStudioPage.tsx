@@ -29,6 +29,20 @@ const DESIGN_STYLES: { id: DesignStyle; he: string; en: string }[] = [
   { id: "clean", he: "נקי", en: "Clean" },
 ];
 
+const BG_COLORS = [
+  "#ffffff", "#f9fafb", "#f3f4f6", "#e5e7eb", "#d1d5db", "#9ca3af", "#6b7280", "#4b5563", "#374151", "#1f2937", "#111827", "#000000",
+  "#fef2f2", "#fecaca", "#fca5a5", "#f87171", "#ef4444", "#dc2626", "#b91c1c", "#991b1b", "#7f1d1d", "#450a0a",
+  "#fff7ed", "#fed7aa", "#fdba74", "#fb923c", "#f97316", "#ea580c", "#c2410c", "#9a3412", "#7c2d12", "#431407",
+  "#fefce8", "#fef08a", "#fde047", "#facc15", "#eab308", "#ca8a04", "#a16207", "#854d0e", "#713f12", "#422006",
+  "#f0fdf4", "#bbf7d0", "#86efac", "#4ade80", "#22c55e", "#16a34a", "#15803d", "#166534", "#14532d", "#052e16",
+  "#f0fdfa", "#99f6e4", "#5eead4", "#2dd4bf", "#14b8a6", "#0d9488", "#0f766e", "#115e59", "#134e4a", "#042f2e",
+  "#eff6ff", "#bfdbfe", "#93c5fd", "#60a5fa", "#3b82f6", "#2563eb", "#1d4ed8", "#1e40af", "#1e3a8a", "#172554",
+  "#eef2ff", "#c7d2fe", "#a5b4fc", "#818cf8", "#6366f1", "#4f46e5", "#4338ca", "#3730a3", "#312e81", "#1e1b4b",
+  "#faf5ff", "#e9d5ff", "#d8b4fe", "#c084fc", "#a855f7", "#9333ea", "#7e22ce", "#6b21a8", "#581c87", "#3b0764",
+  "#fdf2f8", "#fbcfe8", "#f9a8d4", "#f472b6", "#ec4899", "#db2777", "#be185d", "#9d174d", "#831843", "#500724",
+  "#fff1f2", "#fecdd3", "#fda4af", "#fb7185", "#f43f5e", "#e11d48", "#be123c", "#9f1239", "#881337", "#4c0519",
+];
+
 
 
 // Type-specific customizations
@@ -313,13 +327,21 @@ const ProductPhotoStudioPage = () => {
               <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
                 <Palette size={13} />{isHe ? "צבע רקע" : "Background Color"}
               </label>
-              <div className="flex items-center gap-3">
-                <input type="color" value={bgColor} onChange={e => setBgColor(e.target.value)} className="w-10 h-10 rounded-xl cursor-pointer border-2 border-border/30" />
-                <div className="flex-1">
-                  <span className="text-sm font-medium text-foreground">{bgColor}</span>
-                  <p className="text-[10px] text-muted-foreground">{isHe ? "לחצו לבחירת צבע" : "Click to pick a color"}</p>
-                </div>
-                <div className="w-10 h-10 rounded-xl border-2 border-border/30" style={{ backgroundColor: bgColor }} />
+              <div className="grid grid-cols-10 gap-1.5 max-h-[200px] overflow-y-auto pr-1">
+                {BG_COLORS.map(color => (
+                  <button
+                    key={color}
+                    onClick={() => setBgColor(color)}
+                    className={`w-full aspect-square rounded-lg border-2 transition-all hover:scale-110 ${bgColor === color ? "border-primary ring-2 ring-primary/30 scale-110" : "border-border/30"}`}
+                    style={{ backgroundColor: color }}
+                    title={color}
+                  />
+                ))}
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-muted-foreground">{isHe ? "צבע מותאם:" : "Custom:"}</span>
+                <input type="color" value={bgColor} onChange={e => setBgColor(e.target.value)} className="w-7 h-7 rounded-lg cursor-pointer border border-border/30" />
+                <span className="text-[10px] text-muted-foreground font-mono">{bgColor}</span>
               </div>
             </div>
           </div>
