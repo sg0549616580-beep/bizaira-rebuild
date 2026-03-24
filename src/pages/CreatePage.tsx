@@ -61,8 +61,8 @@ const CreatePage = () => {
   };
 
   const suggestions = isHe
-    ? ["💡 רעיון למוצר חדש", "📋 משימות לשבוע", "🎯 מטרות החודש", "💬 משוב מלקוחה", "📸 רעיון לפוסט"]
-    : ["💡 New product idea", "📋 Weekly tasks", "🎯 Monthly goals", "💬 Client feedback", "📸 Post idea"];
+    ? ["רעיון למוצר חדש", "משימות לשבוע", "מטרות החודש", "משוב מלקוחה", "רעיון לפוסט"]
+    : ["New product idea", "Weekly tasks", "Monthly goals", "Client feedback", "Post idea"];
 
   const toolTypes = [
     { id: "product", icon: Camera, titleKey: "tool.photos.title", descKey: "tool.photos.desc", route: "/create/product-photos" },
@@ -119,16 +119,16 @@ const CreatePage = () => {
             </div>
 
             {/* Add note */}
-            <div className="flex gap-2">
-              <input
+            <div className="space-y-2">
+              <textarea
                 value={newNote}
                 onChange={e => setNewNote(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && addNote()}
                 placeholder={isHe ? "כתבי פתק, רעיון או תזכורת..." : "Write a note, idea or reminder..."}
-                className="flex-1 bg-background/50 border border-border/50 rounded-xl px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/50"
+                rows={3}
+                className="w-full bg-background/50 border border-border/50 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/50 resize-none"
               />
-              <button onClick={addNote} className="gradient-glow text-primary-foreground p-2.5 rounded-xl hover:scale-105 transition-all">
-                <Plus size={18} />
+              <button onClick={addNote} className="w-full gradient-glow text-primary-foreground py-2.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:scale-[1.02] transition-all">
+                <Plus size={16} />{isHe ? "הוסף פתק" : "Add Note"}
               </button>
             </div>
 
