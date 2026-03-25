@@ -1,5 +1,5 @@
 import { NavLink as RouterNavLink } from "react-router-dom";
-import { Home, Wand2, User, HelpCircle } from "lucide-react";
+import { Home, Wand2, User, HelpCircle, BookOpen } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
 const BottomNav = () => {
@@ -8,6 +8,7 @@ const BottomNav = () => {
   const navItems = [
     { to: "/", icon: Home, label: t("nav.home") },
     { to: "/create", icon: Wand2, label: t("nav.create") },
+    { to: "/journal", icon: BookOpen, label: t("nav.journal") },
     { to: "/dashboard", icon: User, label: t("nav.dashboard") },
     { to: "/support", icon: HelpCircle, label: t("nav.support") },
   ];

@@ -8,6 +8,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import AppLayout from "@/components/AppLayout";
 import LandingPage from "./pages/LandingPage";
 import CreatePage from "./pages/CreatePage";
+import JournalPage from "./pages/JournalPage";
 
 import ProductPhotoStudioPage from "./pages/ProductPhotoStudioPage";
 import AIMessagesPage from "./pages/AIMessagesPage";
@@ -54,6 +55,7 @@ const App = () => (
 
               <Route path="/" element={<AppLayout><LandingPage /></AppLayout>} />
               <Route path="/create" element={<AppLayout><CreatePage /></AppLayout>} />
+              <Route path="/journal" element={<AppLayout><JournalPage /></AppLayout>} />
               
               <Route path="/create/product-photos" element={<AppLayout><ProductPhotoStudioPage /></AppLayout>} />
               <Route path="/create/messages" element={<AppLayout><AIMessagesPage /></AppLayout>} />
