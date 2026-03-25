@@ -8,6 +8,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import AppLayout from "@/components/AppLayout";
 import LandingPage from "./pages/LandingPage";
 import CreatePage from "./pages/CreatePage";
+import JournalPage from "./pages/JournalPage";
 
 import ProductPhotoStudioPage from "./pages/ProductPhotoStudioPage";
 import AIMessagesPage from "./pages/AIMessagesPage";
