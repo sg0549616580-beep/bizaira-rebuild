@@ -4,24 +4,7 @@ import SparkleIcon from "@/components/SparkleIcon";
 import { useI18n } from "@/lib/i18n";
 import {
   Camera, MessageSquare, BarChart3, CalendarClock, DollarSign,
-  StickyNote, Plus, Trash2, Lightbulb, X,
 } from "lucide-react";
-
-interface Note {
-  id: string;
-  text: string;
-  date: string;
-  color: string;
-}
-
-const NOTE_COLORS = [
-  "bg-yellow-100/80 dark:bg-yellow-900/30 border-yellow-300/50",
-  "bg-pink-100/80 dark:bg-pink-900/30 border-pink-300/50",
-  "bg-blue-100/80 dark:bg-blue-900/30 border-blue-300/50",
-  "bg-green-100/80 dark:bg-green-900/30 border-green-300/50",
-  "bg-purple-100/80 dark:bg-purple-900/30 border-purple-300/50",
-  "bg-orange-100/80 dark:bg-orange-900/30 border-orange-300/50",
-];
 
 const CreatePage = () => {
   const navigate = useNavigate();
