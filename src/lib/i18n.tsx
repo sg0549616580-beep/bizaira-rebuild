@@ -12,6 +12,7 @@ const translations: Translations = {
   "nav.create": { he: "יצירה", en: "Create" },
   "nav.dashboard": { he: "האזור שלי", en: "My Area" },
   "nav.support": { he: "תמיכה", en: "Support" },
+  "nav.journal": { he: "יומן", en: "Journal" },
 
   // Home
   "home.hero.title1": { he: "ה-AI שיוצר לעסק שלך", en: "AI That Creates For Your Business" },
