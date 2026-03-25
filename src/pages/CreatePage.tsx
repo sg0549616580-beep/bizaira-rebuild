@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import SparkleIcon from "@/components/SparkleIcon";
 import { useI18n } from "@/lib/i18n";
 import {
-  Camera, MessageSquare, BarChart3, CalendarClock, DollarSign,
+  Camera, MessageSquare, BarChart3, CalendarClock, DollarSign, BookOpen,
 } from "lucide-react";
 
 const CreatePage = () => {
@@ -15,6 +15,7 @@ const CreatePage = () => {
     { id: "analytics", icon: BarChart3, titleKey: "tool.analytics.title", descKey: "tool.analytics.desc", route: "/create/analytics" },
     { id: "time", icon: CalendarClock, titleKey: "tool.time.title", descKey: "tool.time.desc", route: "/create/time" },
     { id: "pricing", icon: DollarSign, titleKey: "tool.pricing.title", descKey: "tool.pricing.desc", route: "/create/pricing" },
+    { id: "journal", icon: BookOpen, titleKey: "tool.journal.title", descKey: "tool.journal.desc", route: "/journal" },
   ];
 
   return (
