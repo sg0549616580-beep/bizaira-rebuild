@@ -37,7 +37,7 @@ const OnboardingPage = () => {
     {
       icon: Wand2,
       title: lang === "he" ? "יצירת תוכן שיווקי" : "Marketing Content Creation",
-      desc: lang === "he" ? "מצגות, תמונות מוצר וניסוחים מקצועיים בלחיצה" : "Presentations, product photos and professional copy in one click",
+      desc: lang === "he" ? "תמונות מוצר, ניסוחים מקצועיים ותוכן שיווקי בלחיצה" : "Product photos, professional copy and marketing content in one click",
     },
     {
       icon: BarChart3,

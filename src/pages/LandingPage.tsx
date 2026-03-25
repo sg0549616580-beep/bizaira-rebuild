@@ -62,8 +62,8 @@ const LandingPage = () => {
         </h1>
         <p className="text-muted-foreground text-base md:text-lg leading-relaxed max-w-md mx-auto">
           {lang === "he"
-            ? "יצירת מצגות, תמונות מוצר, קבצי PDF ותוכן שיווקי — בתוך כמה שניות בלבד בעזרת AI."
-            : "Create presentations, product photos, PDFs and marketing content — in just seconds with AI."}
+            ? "יצירת תמונות מוצר, תוכן שיווקי, ניתוח עסקי ועוד — בתוך כמה שניות בלבד בעזרת AI."
+            : "Create product photos, marketing content, business analytics and more — in just seconds with AI."}
         </p>
       </div>
 
