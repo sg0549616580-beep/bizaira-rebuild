@@ -1,396 +1,715 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useI18n } from "@/lib/i18n";
 import {
-  CalendarClock, Plus, Check, Clock, AlertTriangle, Lightbulb,
-  Target, MessageSquare, Briefcase, Trash2, ChevronLeft, ChevronRight,
-  Flag, CheckCircle2, Circle, X,
+  Plus, Check, Clock, Star, StarOff, ChevronLeft, ChevronRight,
+  Trash2, X, CalendarDays, Bell, BellOff, CalendarClock, Edit3,
+  SkipForward, CheckCircle2, Circle, AlertCircle,
 } from "lucide-react";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { format, startOfWeek, endOfWeek, addDays, addWeeks, subWeeks, addMonths, subMonths, isSameDay, isWithinInterval, startOfMonth, endOfMonth, isBefore } from "date-fns";
+import { format, addDays, isSameDay, startOfWeek, parseISO, isToday, isPast } from "date-fns";
 import { he, enUS } from "date-fns/locale";
 
-type EntryType = "task" | "meeting" | "reminder" | "goal" | "idea" | "note" | "plan";
-type Priority = "high" | "medium" | "low";
+const STORAGE_KEY = "bizaira_tasks_v2";
 
-interface JournalEntry {
+type TaskType = "task" | "meeting";
+type TaskStatus = "pending" | "done" | "postponed";
+
+interface Task {
   id: string;
-  type: EntryType;
   title: string;
-  description: string;
+  type: TaskType;
   date: string;
   time: string;
-  priority: Priority;
-  completed: boolean;
+  important: boolean;
+  status: TaskStatus;
+  reminder: boolean;
   createdAt: string;
+  reminderFired?: boolean;
 }
 
-const STORAGE_KEY = "bizaira_journal";
+const todayStr = () => format(new Date(), "yyyy-MM-dd");
 
-const ENTRY_TYPES: { id: EntryType; icon: typeof Check; labelHe: string; labelEn: string; color: string }[] = [
-  { id: "task", icon: CheckCircle2, labelHe: "משימה", labelEn: "Task", color: "text-blue-500" },
-  { id: "meeting", icon: CalendarClock, labelHe: "פגישה", labelEn: "Meeting", color: "text-violet-500" },
-  { id: "reminder", icon: Clock, labelHe: "תזכורת", labelEn: "Reminder", color: "text-amber-500" },
-  { id: "goal", icon: Target, labelHe: "מטרה", labelEn: "Goal", color: "text-emerald-500" },
-  { id: "idea", icon: Lightbulb, labelHe: "רעיון", labelEn: "Idea", color: "text-yellow-500" },
-  { id: "note", icon: MessageSquare, labelHe: "הערה", labelEn: "Note", color: "text-slate-500" },
-  { id: "plan", icon: Briefcase, labelHe: "תוכנית עבודה", labelEn: "Work Plan", color: "text-pink-500" },
-];
-
-const PRIORITY_CONFIG: Record<Priority, { labelHe: string; labelEn: string; color: string; bg: string }> = {
-  high: { labelHe: "דחוף", labelEn: "Urgent", color: "text-red-600", bg: "bg-red-100 dark:bg-red-900/30" },
-  medium: { labelHe: "רגיל", labelEn: "Normal", color: "text-amber-600", bg: "bg-amber-100 dark:bg-amber-900/30" },
-  low: { labelHe: "נמוך", labelEn: "Low", color: "text-emerald-600", bg: "bg-emerald-100 dark:bg-emerald-900/30" },
+const loadTasks = (): Task[] => {
+  try {
+    const s = localStorage.getItem(STORAGE_KEY);
+    return s ? JSON.parse(s) : [];
+  } catch { return []; }
 };
+
+const saveTasks = (tasks: Task[]) => {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+};
+
+type View = "day" | "week";
+type AddModalState = { open: boolean; defaultDate: string };
 
 const JournalPage = () => {
   const { lang } = useI18n();
   const isHe = lang === "he";
   const locale = isHe ? he : enUS;
 
-  const [entries, setEntries] = useState<JournalEntry[]>([]);
-  const [view, setView] = useState<"day" | "week" | "month">("day");
+  const [tasks, setTasks] = useState<Task[]>(loadTasks);
+  const [view, setView] = useState<View>("day");
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [showAdd, setShowAdd] = useState(false);
-  const [newEntry, setNewEntry] = useState<Partial<JournalEntry>>({
-    type: "task",
-    priority: "medium",
-    title: "",
-    description: "",
-    date: format(new Date(), "yyyy-MM-dd"),
-    time: "",
-  });
+  const [addModal, setAddModal] = useState<AddModalState>({ open: false, defaultDate: todayStr() });
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [notifGranted, setNotifGranted] = useState(
+    typeof Notification !== "undefined" ? Notification.permission === "granted" : false
+  );
 
+  // Form state
+  const emptyForm = useCallback((date: string): Partial<Task> => ({
+    title: "", type: "task", date, time: "", important: false, reminder: false,
+  }), []);
+  const [form, setForm] = useState<Partial<Task>>(emptyForm(todayStr()));
+
+  const updateTasks = (updated: Task[]) => {
+    setTasks(updated);
+    saveTasks(updated);
+  };
+
+  // Reminder polling
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) setEntries(JSON.parse(stored));
-    } catch {}
-  }, []);
+    if (!notifGranted) return;
+    const interval = setInterval(() => {
+      const now = new Date();
+      const nowStr = format(now, "HH:mm");
+      const nowDate = format(now, "yyyy-MM-dd");
+      const updated = tasks.map(t => {
+        if (t.reminder && !t.reminderFired && t.status === "pending" && t.time && t.date === nowDate && t.time === nowStr) {
+          new Notification(isHe ? `⏰ תזכורת: ${t.title}` : `⏰ Reminder: ${t.title}`, {
+            body: isHe ? `שעה: ${t.time}` : `Time: ${t.time}`,
+            icon: "/favicon.ico",
+          });
+          return { ...t, reminderFired: true };
+        }
+        return t;
+      });
+      if (updated.some((t, i) => t.reminderFired !== tasks[i]?.reminderFired)) {
+        updateTasks(updated);
+      }
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [tasks, notifGranted, isHe]);
 
-  const save = (updated: JournalEntry[]) => {
-    setEntries(updated);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+  const requestNotifications = async () => {
+    if (typeof Notification === "undefined") return;
+    const result = await Notification.requestPermission();
+    setNotifGranted(result === "granted");
   };
 
-  const addEntry = () => {
-    if (!newEntry.title?.trim()) return;
-    const entry: JournalEntry = {
-      id: Date.now().toString(),
-      type: newEntry.type || "task",
-      title: newEntry.title.trim(),
-      description: newEntry.description?.trim() || "",
-      date: newEntry.date || format(new Date(), "yyyy-MM-dd"),
-      time: newEntry.time || "",
-      priority: newEntry.priority || "medium",
-      completed: false,
-      createdAt: new Date().toISOString(),
-    };
-    save([entry, ...entries]);
-    setNewEntry({ type: "task", priority: "medium", title: "", description: "", date: format(new Date(), "yyyy-MM-dd"), time: "" });
-    setShowAdd(false);
+  const openAdd = (date?: string) => {
+    const d = date || format(currentDate, "yyyy-MM-dd");
+    setEditingTask(null);
+    setForm(emptyForm(d));
+    setAddModal({ open: true, defaultDate: d });
   };
 
-  const toggleComplete = (id: string) => {
-    save(entries.map(e => e.id === id ? { ...e, completed: !e.completed } : e));
+  const openEdit = (task: Task) => {
+    setEditingTask(task);
+    setForm({ ...task });
+    setAddModal({ open: true, defaultDate: task.date });
   };
 
-  const deleteEntry = (id: string) => {
-    save(entries.filter(e => e.id !== id));
-  };
-
-  const navigate = (dir: number) => {
-    if (view === "day") setCurrentDate(prev => addDays(prev, dir));
-    else if (view === "week") setCurrentDate(prev => dir > 0 ? addWeeks(prev, 1) : subWeeks(prev, 1));
-    else setCurrentDate(prev => dir > 0 ? addMonths(prev, 1) : subMonths(prev, 1));
-  };
-
-  const filteredEntries = useMemo(() => {
-    return entries.filter(e => {
-      const d = new Date(e.date);
-      if (view === "day") return isSameDay(d, currentDate);
-      if (view === "week") return isWithinInterval(d, { start: startOfWeek(currentDate, { weekStartsOn: 0 }), end: endOfWeek(currentDate, { weekStartsOn: 0 }) });
-      return isWithinInterval(d, { start: startOfMonth(currentDate), end: endOfMonth(currentDate) });
-    });
-  }, [entries, view, currentDate]);
-
-  const urgentEntries = filteredEntries.filter(e => e.priority === "high" && !e.completed);
-  const todayTasks = filteredEntries.filter(e => (e.type === "task" || e.type === "meeting" || e.type === "reminder") && !e.completed);
-  const ideas = filteredEntries.filter(e => e.type === "idea" || e.type === "note");
-  const goals = filteredEntries.filter(e => e.type === "goal" || e.type === "plan");
-  const completedCount = filteredEntries.filter(e => e.completed).length;
-  const pendingCount = filteredEntries.filter(e => !e.completed).length;
-
-  const dateLabel = () => {
-    if (view === "day") return format(currentDate, "EEEE, d MMMM yyyy", { locale });
-    if (view === "week") {
-      const s = startOfWeek(currentDate, { weekStartsOn: 0 });
-      const e = endOfWeek(currentDate, { weekStartsOn: 0 });
-      return `${format(s, "d MMM", { locale })} - ${format(e, "d MMM yyyy", { locale })}`;
+  const submitForm = () => {
+    if (!form.title?.trim()) return;
+    if (editingTask) {
+      updateTasks(tasks.map(t => t.id === editingTask.id ? { ...t, ...form } as Task : t));
+    } else {
+      const newTask: Task = {
+        id: Date.now().toString(),
+        title: form.title!.trim(),
+        type: form.type || "task",
+        date: form.date || todayStr(),
+        time: form.time || "",
+        important: form.important || false,
+        status: "pending",
+        reminder: form.reminder || false,
+        createdAt: new Date().toISOString(),
+      };
+      updateTasks([...tasks, newTask]);
     }
-    return format(currentDate, "MMMM yyyy", { locale });
+    setAddModal({ open: false, defaultDate: todayStr() });
+    setEditingTask(null);
+    setForm(emptyForm(todayStr()));
   };
 
-  const getTypeConfig = (type: EntryType) => ENTRY_TYPES.find(t => t.id === type)!;
+  const complete = (id: string) => {
+    updateTasks(tasks.map(t => t.id === id ? { ...t, status: t.status === "done" ? "pending" : "done" } : t));
+  };
 
-  const EntryCard = ({ entry }: { entry: JournalEntry }) => {
-    const config = getTypeConfig(entry.type);
-    const pConfig = PRIORITY_CONFIG[entry.priority];
-    const Icon = config.icon;
+  const postpone = (id: string) => {
+    updateTasks(tasks.map(t => {
+      if (t.id !== id) return t;
+      const next = format(addDays(parseISO(t.date), 1), "yyyy-MM-dd");
+      return { ...t, date: next, status: "pending", reminderFired: false };
+    }));
+  };
+
+  const toggleImportant = (id: string) => {
+    updateTasks(tasks.map(t => t.id === id ? { ...t, important: !t.important } : t));
+  };
+
+  const deleteTask = (id: string) => {
+    updateTasks(tasks.filter(t => t.id !== id));
+  };
+
+  // Daily tasks
+  const dayTasks = useMemo(() => {
+    const dayStr = format(currentDate, "yyyy-MM-dd");
+    return tasks.filter(t => t.date === dayStr);
+  }, [tasks, currentDate]);
+
+  const importantPending = useMemo(() => dayTasks.filter(t => t.important && t.status !== "done"), [dayTasks]);
+  const meetingsSorted = useMemo(() =>
+    dayTasks.filter(t => t.type === "meeting" && t.status !== "done").sort((a, b) => a.time.localeCompare(b.time)),
+    [dayTasks]);
+  const regularTasks = useMemo(() =>
+    dayTasks.filter(t => t.type === "task" && !t.important && t.status !== "done"),
+    [dayTasks]);
+  const doneTasks = useMemo(() => dayTasks.filter(t => t.status === "done"), [dayTasks]);
+
+  // Weekly view
+  const weekStart = useMemo(() => startOfWeek(currentDate, { weekStartsOn: 0 }), [currentDate]);
+  const weekDays = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)), [weekStart]);
+
+  const weekTasksForDay = useCallback((d: Date) => {
+    const s = format(d, "yyyy-MM-dd");
+    return tasks.filter(t => t.date === s);
+  }, [tasks]);
+
+  const prevDay = () => setCurrentDate(d => addDays(d, -1));
+  const nextDay = () => setCurrentDate(d => addDays(d, 1));
+  const goToday = () => setCurrentDate(new Date());
+
+  const isCurrentDay = isToday(currentDate);
+  const dayLabel = format(currentDate, "EEEE, d MMMM", { locale });
+
+  // Task card
+  const TaskCard = ({ task }: { task: Task }) => {
+    const done = task.status === "done";
+    const overdue = !done && task.time && isPast(new Date(`${task.date}T${task.time}`));
     return (
-      <div className={`glass-card rounded-xl p-3.5 transition-all duration-200 hover:shadow-md ${entry.completed ? "opacity-60" : ""}`}>
+      <div className={`
+        glass-card rounded-2xl p-3.5 transition-all duration-200
+        ${done ? "opacity-50" : ""}
+        ${task.important && !done ? "border border-amber-400/30 bg-amber-50/10" : ""}
+        ${task.type === "meeting" ? "border-s-4 border-violet-400" : ""}
+      `}>
         <div className="flex items-start gap-3">
-          <button onClick={() => toggleComplete(entry.id)} className="mt-0.5 shrink-0">
-            {entry.completed
-              ? <CheckCircle2 size={20} className="text-emerald-500" />
-              : <Circle size={20} className="text-muted-foreground/40 hover:text-primary transition-colors" />
+          {/* Complete toggle */}
+          <button
+            onClick={() => complete(task.id)}
+            className="shrink-0 mt-0.5 transition-transform hover:scale-110"
+          >
+            {done
+              ? <CheckCircle2 size={22} className="text-emerald-500" />
+              : <Circle size={22} className="text-muted-foreground/40 hover:text-primary transition-colors" />
             }
           </button>
+
+          {/* Content */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <Icon size={14} className={config.color} />
-              <span className={`text-[10px] font-semibold uppercase tracking-wider ${config.color}`}>
-                {isHe ? config.labelHe : config.labelEn}
-              </span>
-              <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${pConfig.bg} ${pConfig.color}`}>
-                {isHe ? pConfig.labelHe : pConfig.labelEn}
-              </span>
+            <div className="flex items-center gap-1.5 mb-0.5">
+              {task.type === "meeting" && (
+                <span className="text-[10px] font-bold uppercase tracking-wider text-violet-500 bg-violet-100/50 dark:bg-violet-900/30 px-1.5 py-0.5 rounded-full">
+                  {isHe ? "פגישה" : "Meeting"}
+                </span>
+              )}
+              {task.important && !done && (
+                <span className="text-[10px] font-bold text-amber-600 bg-amber-100/60 dark:bg-amber-900/30 px-1.5 py-0.5 rounded-full">
+                  {isHe ? "חשוב" : "Important"}
+                </span>
+              )}
+              {overdue && (
+                <span className="text-[10px] font-bold text-red-500 bg-red-100/60 dark:bg-red-900/30 px-1.5 py-0.5 rounded-full flex items-center gap-1">
+                  <AlertCircle size={9} /> {isHe ? "באיחור" : "Late"}
+                </span>
+              )}
             </div>
-            <p className={`text-sm font-semibold text-foreground ${entry.completed ? "line-through" : ""}`}>{entry.title}</p>
-            {entry.description && <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{entry.description}</p>}
-            <div className="flex items-center gap-3 mt-2 text-[11px] text-muted-foreground">
-              <span>{format(new Date(entry.date), "d MMM", { locale })}</span>
-              {entry.time && <span>{entry.time}</span>}
-            </div>
+            <p className={`text-sm font-semibold leading-snug ${done ? "line-through text-muted-foreground" : "text-foreground"}`}>
+              {task.title}
+            </p>
+            {task.time && (
+              <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
+                <Clock size={11} />
+                <span dir="ltr">{task.time}</span>
+                {task.reminder && <Bell size={10} className="text-primary/60 ms-1" />}
+              </div>
+            )}
           </div>
-          <button onClick={() => deleteEntry(entry.id)} className="p-1.5 rounded-lg hover:bg-destructive/10 transition-all shrink-0">
-            <Trash2 size={14} className="text-muted-foreground hover:text-destructive" />
-          </button>
+
+          {/* Actions */}
+          <div className="flex items-center gap-1 shrink-0">
+            {!done && (
+              <>
+                <button
+                  onClick={() => toggleImportant(task.id)}
+                  className="p-1.5 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all"
+                  title={isHe ? "סמן כחשוב" : "Mark important"}
+                >
+                  {task.important
+                    ? <Star size={14} className="text-amber-500 fill-amber-500" />
+                    : <StarOff size={14} className="text-muted-foreground/50" />
+                  }
+                </button>
+                <button
+                  onClick={() => postpone(task.id)}
+                  className="p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all"
+                  title={isHe ? "דחה למחר" : "Postpone to tomorrow"}
+                >
+                  <SkipForward size={14} className="text-blue-500/70" />
+                </button>
+                <button
+                  onClick={() => openEdit(task)}
+                  className="p-1.5 rounded-lg hover:bg-muted transition-all"
+                >
+                  <Edit3 size={13} className="text-muted-foreground/60" />
+                </button>
+              </>
+            )}
+            <button
+              onClick={() => deleteTask(task.id)}
+              className="p-1.5 rounded-lg hover:bg-destructive/10 transition-all"
+            >
+              <Trash2 size={13} className="text-muted-foreground/50 hover:text-destructive transition-colors" />
+            </button>
+          </div>
         </div>
       </div>
     );
   };
 
-  const Section = ({ title, icon: SIcon, children, count }: { title: string; icon: typeof Check; children: React.ReactNode; count?: number }) => (
-    <div className="space-y-2.5">
-      <div className="flex items-center gap-2">
-        <SIcon size={16} className="text-primary" />
-        <h3 className="text-sm font-bold text-foreground">{title}</h3>
-        {count !== undefined && count > 0 && (
-          <span className="text-[10px] font-bold bg-primary/10 text-primary px-2 py-0.5 rounded-full">{count}</span>
-        )}
-      </div>
-      {children}
+  const SectionHeader = ({ title, count, accent }: { title: string; count?: number; accent?: string }) => (
+    <div className={`flex items-center gap-2 mb-2.5 ${accent || ""}`}>
+      <h3 className="text-sm font-bold text-foreground">{title}</h3>
+      {count !== undefined && count > 0 && (
+        <span className="text-[10px] font-bold bg-primary/10 text-primary px-2 py-0.5 rounded-full">{count}</span>
+      )}
     </div>
   );
 
   return (
-    <div className="px-4 pt-5 pb-28" dir={isHe ? "rtl" : "ltr"}>
-      {/* Header */}
-      <div className="flex items-center justify-between mb-5">
-        <div>
-          <h1 className="text-xl font-bold text-foreground">{isHe ? "יומן עסקי חכם" : "Smart Business Journal"}</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">{isHe ? "ניהול משימות, תכנון והתקדמות" : "Tasks, planning & progress"}</p>
-        </div>
-        <button
-          onClick={() => setShowAdd(true)}
-          className="gradient-glow text-primary-foreground p-2.5 rounded-xl shadow-md hover:scale-105 transition-transform"
-        >
-          <Plus size={20} />
-        </button>
-      </div>
-
-      {/* Stats Row */}
-      <div className="grid grid-cols-3 gap-2.5 mb-5">
-        {[
-          { label: isHe ? "ממתינים" : "Pending", value: pendingCount, icon: Clock, color: "text-amber-500" },
-          { label: isHe ? "דחופים" : "Urgent", value: urgentEntries.length, icon: AlertTriangle, color: "text-red-500" },
-          { label: isHe ? "הושלמו" : "Done", value: completedCount, icon: CheckCircle2, color: "text-emerald-500" },
-        ].map(stat => (
-          <div key={stat.label} className="glass-card rounded-xl p-3 text-center">
-            <stat.icon size={18} className={`${stat.color} mx-auto mb-1`} />
-            <p className="text-lg font-bold text-foreground">{stat.value}</p>
-            <p className="text-[10px] text-muted-foreground font-medium">{stat.label}</p>
+    <div className="pb-28" dir={isHe ? "rtl" : "ltr"}>
+      {/* Top Header */}
+      <div className="sticky top-0 z-20 bg-background/90 backdrop-blur-md border-b border-border/50 px-4 pt-5 pb-3">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <h1 className="text-lg font-bold text-foreground">
+              {isHe ? "ניהול משימות" : "Task Manager"}
+            </h1>
+            <p className="text-xs text-muted-foreground">
+              {isHe ? "מה יש לי לעשות היום" : "What do I need to do today"}
+            </p>
           </div>
-        ))}
-      </div>
-
-      {/* View Tabs + Date Nav */}
-      <div className="space-y-3 mb-5">
-        <Tabs value={view} onValueChange={(v) => setView(v as any)} className="w-full">
-          <TabsList className="w-full">
-            <TabsTrigger value="day" className="flex-1 text-xs">{isHe ? "יומי" : "Day"}</TabsTrigger>
-            <TabsTrigger value="week" className="flex-1 text-xs">{isHe ? "שבועי" : "Week"}</TabsTrigger>
-            <TabsTrigger value="month" className="flex-1 text-xs">{isHe ? "חודשי" : "Month"}</TabsTrigger>
-          </TabsList>
-        </Tabs>
-        <div className="flex items-center justify-between">
-          <button onClick={() => navigate(-1)} className="p-2 rounded-lg hover:bg-muted transition-colors">
-            {isHe ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
-          </button>
-          <p className="text-sm font-semibold text-foreground">{dateLabel()}</p>
-          <button onClick={() => navigate(1)} className="p-2 rounded-lg hover:bg-muted transition-colors">
-            {isHe ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
-          </button>
-        </div>
-      </div>
-
-      {/* Content Sections */}
-      <div className="space-y-5">
-        {urgentEntries.length > 0 && (
-          <Section title={isHe ? "דורש טיפול מיידי" : "Needs Immediate Attention"} icon={AlertTriangle} count={urgentEntries.length}>
-            <div className="space-y-2">{urgentEntries.map(e => <EntryCard key={e.id} entry={e} />)}</div>
-          </Section>
-        )}
-
-        {todayTasks.length > 0 && (
-          <Section title={isHe ? "משימות ופגישות" : "Tasks & Meetings"} icon={CheckCircle2} count={todayTasks.length}>
-            <div className="space-y-2">{todayTasks.map(e => <EntryCard key={e.id} entry={e} />)}</div>
-          </Section>
-        )}
-
-        {goals.length > 0 && (
-          <Section title={isHe ? "מטרות ותוכניות" : "Goals & Plans"} icon={Target} count={goals.length}>
-            <div className="space-y-2">{goals.map(e => <EntryCard key={e.id} entry={e} />)}</div>
-          </Section>
-        )}
-
-        {ideas.length > 0 && (
-          <Section title={isHe ? "רעיונות והערות" : "Ideas & Notes"} icon={Lightbulb} count={ideas.length}>
-            <div className="space-y-2">{ideas.map(e => <EntryCard key={e.id} entry={e} />)}</div>
-          </Section>
-        )}
-
-        {completedCount > 0 && (
-          <Section title={isHe ? "הושלמו" : "Completed"} icon={CheckCircle2}>
-            <div className="space-y-2">{filteredEntries.filter(e => e.completed).map(e => <EntryCard key={e.id} entry={e} />)}</div>
-          </Section>
-        )}
-
-        {filteredEntries.length === 0 && (
-          <div className="text-center py-12">
-            <CalendarClock size={40} className="text-muted-foreground/30 mx-auto mb-3" />
-            <p className="text-sm text-muted-foreground">{isHe ? "אין רשומות לתקופה הזו" : "No entries for this period"}</p>
-            <button onClick={() => setShowAdd(true)} className="mt-3 text-sm font-semibold text-primary hover:underline">
-              {isHe ? "הוסף רשומה ראשונה" : "Add first entry"}
+          <div className="flex items-center gap-2">
+            {!notifGranted && (
+              <button
+                onClick={requestNotifications}
+                className="p-2 rounded-xl bg-muted/60 hover:bg-muted transition-all"
+                title={isHe ? "הפעל תזכורות" : "Enable reminders"}
+              >
+                <BellOff size={16} className="text-muted-foreground" />
+              </button>
+            )}
+            {notifGranted && (
+              <div className="p-2 rounded-xl bg-primary/10" title={isHe ? "תזכורות פעילות" : "Reminders active"}>
+                <Bell size={16} className="text-primary" />
+              </div>
+            )}
+            <button
+              onClick={() => openAdd()}
+              className="gradient-glow text-primary-foreground px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-1.5 shadow-md hover:scale-105 transition-transform"
+            >
+              <Plus size={16} />
+              {isHe ? "הוסף משימה" : "Add Task"}
             </button>
           </div>
-        )}
+        </div>
+
+        {/* View Toggle */}
+        <div className="flex gap-2">
+          {(["day", "week"] as View[]).map(v => (
+            <button
+              key={v}
+              onClick={() => setView(v)}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+                view === v
+                  ? "gradient-glow text-primary-foreground shadow-md"
+                  : "bg-muted/60 text-muted-foreground hover:bg-muted"
+              }`}
+            >
+              {v === "day" ? <CalendarDays size={13} /> : <CalendarClock size={13} />}
+              {v === "day" ? (isHe ? "יומי" : "Daily") : (isHe ? "שבועי" : "Weekly")}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Add Entry Modal */}
-      {showAdd && (
-        <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-end sm:items-center justify-center" onClick={() => setShowAdd(false)}>
-          <div onClick={e => e.stopPropagation()} className="w-full max-w-lg max-h-[90vh] bg-card border border-border rounded-t-3xl sm:rounded-3xl p-5 space-y-4 overflow-y-auto animate-fade-in-up">
+      {/* DAILY VIEW */}
+      {view === "day" && (
+        <div className="px-4 pt-4 space-y-4">
+          {/* Date navigator */}
+          <div className="flex items-center justify-between">
+            <button onClick={prevDay} className="p-2 rounded-xl hover:bg-muted transition-all">
+              {isHe ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+            </button>
+            <div className="text-center">
+              <p className="text-sm font-bold text-foreground capitalize">{dayLabel}</p>
+              {isCurrentDay && (
+                <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                  {isHe ? "היום" : "Today"}
+                </span>
+              )}
+            </div>
+            <button onClick={nextDay} className="p-2 rounded-xl hover:bg-muted transition-all">
+              {isHe ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
+            </button>
+          </div>
+
+          {!isCurrentDay && (
+            <button
+              onClick={goToday}
+              className="w-full text-xs text-primary font-semibold bg-primary/5 hover:bg-primary/10 py-2 rounded-xl transition-all"
+            >
+              {isHe ? "← חזור להיום" : "← Back to Today"}
+            </button>
+          )}
+
+          {/* Stats */}
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { label: isHe ? "ממתינות" : "Pending", value: dayTasks.filter(t => t.status !== "done").length, color: "text-blue-500" },
+              { label: isHe ? "חשובות" : "Important", value: importantPending.length, color: "text-amber-500" },
+              { label: isHe ? "הושלמו" : "Done", value: doneTasks.length, color: "text-emerald-500" },
+            ].map(s => (
+              <div key={s.label} className="glass-card rounded-2xl p-3 text-center">
+                <p className={`text-xl font-extrabold ${s.color}`}>{s.value}</p>
+                <p className="text-[10px] font-medium text-muted-foreground mt-0.5">{s.label}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Important tasks */}
+          {importantPending.length > 0 && (
+            <div>
+              <SectionHeader title={isHe ? "⭐ משימות חשובות" : "⭐ Important Tasks"} count={importantPending.length} />
+              <div className="space-y-2">
+                {importantPending.map(t => <TaskCard key={t.id} task={t} />)}
+              </div>
+            </div>
+          )}
+
+          {/* Meetings sorted by time */}
+          {meetingsSorted.length > 0 && (
+            <div>
+              <SectionHeader title={isHe ? "🗓 פגישות" : "🗓 Meetings"} count={meetingsSorted.length} />
+              <div className="space-y-2">
+                {meetingsSorted.map(t => <TaskCard key={t.id} task={t} />)}
+              </div>
+            </div>
+          )}
+
+          {/* Regular tasks */}
+          {regularTasks.length > 0 && (
+            <div>
+              <SectionHeader title={isHe ? "📋 משימות" : "📋 Tasks"} count={regularTasks.length} />
+              <div className="space-y-2">
+                {regularTasks.map(t => <TaskCard key={t.id} task={t} />)}
+              </div>
+            </div>
+          )}
+
+          {/* Completed */}
+          {doneTasks.length > 0 && (
+            <div>
+              <SectionHeader title={isHe ? "✅ הושלמו" : "✅ Completed"} />
+              <div className="space-y-2">
+                {doneTasks.map(t => <TaskCard key={t.id} task={t} />)}
+              </div>
+            </div>
+          )}
+
+          {/* Empty */}
+          {dayTasks.length === 0 && (
+            <div className="text-center py-14">
+              <div className="w-16 h-16 rounded-3xl bg-muted/50 flex items-center justify-center mx-auto mb-4">
+                <Check size={28} className="text-muted-foreground/30" />
+              </div>
+              <p className="text-sm font-semibold text-muted-foreground">
+                {isHe ? "אין משימות ליום זה" : "No tasks for this day"}
+              </p>
+              <button
+                onClick={() => openAdd(format(currentDate, "yyyy-MM-dd"))}
+                className="mt-3 text-sm font-bold text-primary hover:underline"
+              >
+                {isHe ? "+ הוסף משימה ראשונה" : "+ Add first task"}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* WEEKLY VIEW */}
+      {view === "week" && (
+        <div className="px-4 pt-4 space-y-4">
+          {/* Week Navigator */}
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => setCurrentDate(d => addDays(d, -7))}
+              className="p-2 rounded-xl hover:bg-muted transition-all"
+            >
+              {isHe ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+            </button>
+            <p className="text-sm font-bold text-foreground">
+              {format(weekStart, "d MMM", { locale })} — {format(addDays(weekStart, 6), "d MMM yyyy", { locale })}
+            </p>
+            <button
+              onClick={() => setCurrentDate(d => addDays(d, 7))}
+              className="p-2 rounded-xl hover:bg-muted transition-all"
+            >
+              {isHe ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
+            </button>
+          </div>
+
+          {/* Back to today */}
+          {!weekDays.some(d => isToday(d)) && (
+            <button
+              onClick={goToday}
+              className="w-full text-xs text-primary font-semibold bg-primary/5 hover:bg-primary/10 py-2 rounded-xl transition-all"
+            >
+              {isHe ? "← חזור לשבוע הנוכחי" : "← Back to This Week"}
+            </button>
+          )}
+
+          {/* Day columns */}
+          <div className="space-y-3">
+            {weekDays.map(day => {
+              const dayTasks = weekTasksForDay(day);
+              const pending = dayTasks.filter(t => t.status !== "done");
+              const done = dayTasks.filter(t => t.status === "done").length;
+              const isCurrentDay = isToday(day);
+              const dayName = format(day, "EEEE", { locale });
+              const dayNum = format(day, "d MMM", { locale });
+
+              return (
+                <div
+                  key={day.toISOString()}
+                  className={`glass-card rounded-2xl p-4 transition-all ${
+                    isCurrentDay ? "border border-primary/30 shadow-md" : ""
+                  }`}
+                >
+                  {/* Day header */}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-sm font-extrabold ${
+                        isCurrentDay ? "gradient-glow text-primary-foreground" : "bg-muted text-foreground"
+                      }`}>
+                        {format(day, "d")}
+                      </div>
+                      <div>
+                        <p className={`text-sm font-bold capitalize ${isCurrentDay ? "text-primary" : "text-foreground"}`}>
+                          {dayName}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground">{dayNum}</p>
+                      </div>
+                      {isCurrentDay && (
+                        <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                          {isHe ? "היום" : "Today"}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {done > 0 && (
+                        <span className="text-[10px] text-emerald-600 bg-emerald-100/60 dark:bg-emerald-900/20 px-2 py-0.5 rounded-full font-semibold">
+                          {done} {isHe ? "✓" : "✓"}
+                        </span>
+                      )}
+                      <button
+                        onClick={() => openAdd(format(day, "yyyy-MM-dd"))}
+                        className="p-1.5 rounded-xl bg-primary/10 hover:bg-primary/20 transition-all"
+                      >
+                        <Plus size={14} className="text-primary" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Tasks for this day */}
+                  {pending.length > 0 ? (
+                    <div className="space-y-1.5">
+                      {pending.map(t => (
+                        <div
+                          key={t.id}
+                          className={`flex items-center gap-2 px-2 py-1.5 rounded-xl cursor-pointer hover:bg-muted/50 transition-all group ${
+                            t.important ? "bg-amber-50/30 dark:bg-amber-900/10" : ""
+                          }`}
+                          onClick={() => { setCurrentDate(day); setView("day"); }}
+                        >
+                          <button
+                            onClick={e => { e.stopPropagation(); complete(t.id); }}
+                            className="shrink-0"
+                          >
+                            <Circle size={15} className="text-muted-foreground/40 hover:text-primary transition-colors" />
+                          </button>
+                          {t.type === "meeting" && (
+                            <div className="w-1.5 h-1.5 rounded-full bg-violet-400 shrink-0" />
+                          )}
+                          {t.important && (
+                            <Star size={10} className="text-amber-500 fill-amber-500 shrink-0" />
+                          )}
+                          <span className="text-xs text-foreground font-medium truncate flex-1">{t.title}</span>
+                          {t.time && (
+                            <span className="text-[10px] text-muted-foreground shrink-0" dir="ltr">{t.time}</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted-foreground/50 text-center py-1">
+                      {done > 0
+                        ? (isHe ? "כל המשימות הושלמו 🎉" : "All tasks done 🎉")
+                        : (isHe ? "אין משימות" : "No tasks")}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ADD / EDIT MODAL */}
+      {addModal.open && (
+        <div
+          className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-end sm:items-center justify-center"
+          onClick={() => setAddModal({ open: false, defaultDate: todayStr() })}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            className="w-full max-w-lg bg-card border border-border rounded-t-3xl sm:rounded-3xl p-5 space-y-4 max-h-[90vh] overflow-y-auto shadow-xl"
+            dir={isHe ? "rtl" : "ltr"}
+          >
+            {/* Modal header */}
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-foreground">{isHe ? "רשומה חדשה" : "New Entry"}</h2>
-              <button onClick={() => setShowAdd(false)} className="p-1.5 rounded-lg hover:bg-muted transition-all">
+              <h2 className="text-base font-bold text-foreground">
+                {editingTask
+                  ? (isHe ? "ערוך משימה" : "Edit Task")
+                  : (isHe ? "משימה חדשה" : "New Task")}
+              </h2>
+              <button
+                onClick={() => setAddModal({ open: false, defaultDate: todayStr() })}
+                className="p-1.5 rounded-lg hover:bg-muted transition-all"
+              >
                 <X size={18} className="text-muted-foreground" />
               </button>
             </div>
 
-            {/* Type selector */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground">{isHe ? "סוג" : "Type"}</label>
-              <div className="flex flex-wrap gap-1.5">
-                {ENTRY_TYPES.map(t => {
-                  const Icon = t.icon;
-                  const selected = newEntry.type === t.id;
-                  return (
-                    <button
-                      key={t.id}
-                      onClick={() => setNewEntry(prev => ({ ...prev, type: t.id }))}
-                      className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium transition-all border ${
-                        selected
-                          ? "bg-primary/10 border-primary/30 text-primary"
-                          : "bg-muted/50 border-transparent text-muted-foreground hover:bg-muted"
-                      }`}
-                    >
-                      <Icon size={13} />
-                      {isHe ? t.labelHe : t.labelEn}
-                    </button>
-                  );
-                })}
-              </div>
+            {/* Type */}
+            <div className="flex gap-2">
+              {([
+                { id: "task", labelHe: "📋 משימה", labelEn: "📋 Task" },
+                { id: "meeting", labelHe: "🗓 פגישה", labelEn: "🗓 Meeting" },
+              ] as const).map(({ id, labelHe, labelEn }) => (
+                <button
+                  key={id}
+                  onClick={() => setForm(f => ({ ...f, type: id }))}
+                  className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all border ${
+                    form.type === id
+                      ? "gradient-glow text-primary-foreground border-transparent shadow-md"
+                      : "bg-muted/60 text-muted-foreground border-transparent hover:bg-muted"
+                  }`}
+                >
+                  {isHe ? labelHe : labelEn}
+                </button>
+              ))}
             </div>
 
             {/* Title */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground">{isHe ? "כותרת" : "Title"}</label>
+            <div>
+              <label className="text-xs font-semibold text-muted-foreground block mb-1.5">
+                {isHe ? "כותרת" : "Title"} *
+              </label>
               <input
-                value={newEntry.title || ""}
-                onChange={e => setNewEntry(prev => ({ ...prev, title: e.target.value }))}
+                autoFocus
+                value={form.title || ""}
+                onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
+                onKeyDown={e => e.key === "Enter" && submitForm()}
                 placeholder={isHe ? "מה צריך לעשות?" : "What needs to be done?"}
-                className="w-full bg-background/50 border border-border/50 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/50"
-              />
-            </div>
-
-            {/* Description */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground">{isHe ? "פירוט" : "Details"}</label>
-              <textarea
-                value={newEntry.description || ""}
-                onChange={e => setNewEntry(prev => ({ ...prev, description: e.target.value }))}
-                placeholder={isHe ? "פירוט נוסף (אופציונלי)..." : "Additional details (optional)..."}
-                rows={3}
-                className="w-full bg-background/50 border border-border/50 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/50 resize-none"
+                className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/50 transition-all"
               />
             </div>
 
             {/* Date + Time */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground">{isHe ? "תאריך" : "Date"}</label>
+              <div>
+                <label className="text-xs font-semibold text-muted-foreground block mb-1.5">
+                  {isHe ? "תאריך" : "Date"}
+                </label>
                 <input
                   type="date"
-                  value={newEntry.date || ""}
-                  onChange={e => setNewEntry(prev => ({ ...prev, date: e.target.value }))}
-                  className="w-full bg-background/50 border border-border/50 rounded-xl px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/50"
+                  value={form.date || ""}
+                  onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
+                  className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/50"
                 />
               </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground">{isHe ? "שעה" : "Time"}</label>
+              <div>
+                <label className="text-xs font-semibold text-muted-foreground block mb-1.5">
+                  {isHe ? "שעה" : "Time"}
+                </label>
                 <input
                   type="time"
-                  value={newEntry.time || ""}
-                  onChange={e => setNewEntry(prev => ({ ...prev, time: e.target.value }))}
-                  className="w-full bg-background/50 border border-border/50 rounded-xl px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/50"
+                  value={form.time || ""}
+                  onChange={e => setForm(f => ({ ...f, time: e.target.value }))}
+                  className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/50"
                 />
               </div>
             </div>
 
-            {/* Priority */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground">{isHe ? "עדיפות" : "Priority"}</label>
-              <div className="flex gap-2">
-                {(Object.keys(PRIORITY_CONFIG) as Priority[]).map(p => {
-                  const c = PRIORITY_CONFIG[p];
-                  const selected = newEntry.priority === p;
-                  return (
-                    <button
-                      key={p}
-                      onClick={() => setNewEntry(prev => ({ ...prev, priority: p }))}
-                      className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition-all border ${
-                        selected
-                          ? `${c.bg} ${c.color} border-current`
-                          : "bg-muted/50 border-transparent text-muted-foreground hover:bg-muted"
-                      }`}
-                    >
-                      <Flag size={12} />
-                      {isHe ? c.labelHe : c.labelEn}
-                    </button>
-                  );
-                })}
-              </div>
+            {/* Flags */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => setForm(f => ({ ...f, important: !f.important }))}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold flex-1 transition-all border ${
+                  form.important
+                    ? "bg-amber-100/80 dark:bg-amber-900/30 border-amber-400/30 text-amber-700 dark:text-amber-400"
+                    : "bg-muted/60 border-transparent text-muted-foreground hover:bg-muted"
+                }`}
+              >
+                {form.important ? <Star size={15} className="fill-amber-500 text-amber-500" /> : <StarOff size={15} />}
+                {isHe ? "חשוב" : "Important"}
+              </button>
+
+              <button
+                onClick={() => {
+                  if (!notifGranted) { requestNotifications(); return; }
+                  setForm(f => ({ ...f, reminder: !f.reminder }));
+                }}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold flex-1 transition-all border ${
+                  form.reminder
+                    ? "bg-primary/10 border-primary/20 text-primary"
+                    : "bg-muted/60 border-transparent text-muted-foreground hover:bg-muted"
+                }`}
+              >
+                {form.reminder ? <Bell size={15} /> : <BellOff size={15} />}
+                {isHe ? "תזכורת" : "Remind"}
+              </button>
             </div>
+
+            {form.reminder && !form.time && (
+              <p className="text-xs text-amber-600 bg-amber-100/60 dark:bg-amber-900/20 px-3 py-2 rounded-xl">
+                {isHe ? "⚠️ הוסף שעה כדי לקבל תזכורת" : "⚠️ Add a time to receive a reminder"}
+              </p>
+            )}
 
             {/* Submit */}
             <button
-              onClick={addEntry}
-              disabled={!newEntry.title?.trim()}
-              className="w-full gradient-glow text-primary-foreground py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:scale-[1.02] transition-all disabled:opacity-50 disabled:hover:scale-100"
+              onClick={submitForm}
+              disabled={!form.title?.trim()}
+              className="w-full gradient-glow text-primary-foreground py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:scale-[1.02] transition-all disabled:opacity-50 disabled:hover:scale-100 shadow-md"
             >
               <Plus size={16} />
-              {isHe ? "הוסף ליומן" : "Add to Journal"}
+              {editingTask
+                ? (isHe ? "שמור שינויים" : "Save Changes")
+                : (isHe ? "הוסף משימה" : "Add Task")}
             </button>
           </div>
         </div>
