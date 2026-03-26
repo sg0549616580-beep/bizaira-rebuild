@@ -1,24 +1,26 @@
-import { supabase } from "@/integrations/supabase/client";
-
 export async function generateImage(prompt: string, editImage?: string): Promise<string> {
-  const { data, error } = await supabase.functions.invoke("generate-image", {
-    body: { prompt, editImage },
+  const response = await fetch("/api/generate-image", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ prompt, editImage }),
   });
 
-  if (error) throw new Error(error.message || "Image generation failed");
-  if (data?.error) throw new Error(data.error);
+  const data = await response.json();
+  if (!response.ok || data?.error) throw new Error(data?.error || "Image generation failed");
   if (!data?.imageUrl) throw new Error("No image returned");
 
   return data.imageUrl;
 }
 
 export async function generateText(prompt: string, systemPrompt?: string): Promise<string> {
-  const { data, error } = await supabase.functions.invoke("generate-text", {
-    body: { prompt, systemPrompt },
+  const response = await fetch("/api/generate-text", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ prompt, systemPrompt }),
   });
 
-  if (error) throw new Error(error.message || "Text generation failed");
-  if (data?.error) throw new Error(data.error);
+  const data = await response.json();
+  if (!response.ok || data?.error) throw new Error(data?.error || "Text generation failed");
   if (!data?.text) throw new Error("No text returned");
 
   return data.text;
