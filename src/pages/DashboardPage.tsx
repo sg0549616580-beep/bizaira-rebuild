@@ -1,116 +1,162 @@
 import { Link } from "react-router-dom";
-import SparkleIcon from "@/components/SparkleIcon";
-import { Wand2, CreditCard, HeadphonesIcon, Calendar, TrendingUp, Info } from "lucide-react";
+import { Wand2, CreditCard, HeadphonesIcon, Calendar, TrendingUp, ChevronRight, ChevronLeft, Sparkles } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
 
 const DashboardPage = () => {
   const { t, lang } = useI18n();
   const { user, profile } = useAuth();
+  const isHe = lang === "he";
 
-  const userName = user?.user_metadata?.full_name || (lang === "he" ? "אורח" : "Guest");
+  const userName = user?.user_metadata?.full_name || (isHe ? "אורח" : "Guest");
   const creditsUsed = profile?.credits_used ?? 0;
   const creditsTotal = profile?.credits_total ?? 5;
-  const credits = { used: creditsUsed, total: creditsTotal };
+  const creditsLeft = creditsTotal - creditsUsed;
+  const creditPct = creditsTotal > 0 ? Math.round((creditsLeft / creditsTotal) * 100) : 0;
   const renewalDate = profile?.last_renewal_at
-    ? new Date(profile.last_renewal_at).toLocaleDateString(lang === "he" ? "he-IL" : "en-US")
+    ? new Date(profile.last_renewal_at).toLocaleDateString(isHe ? "he-IL" : "en-US")
     : "—";
 
+  const Arrow = isHe ? ChevronLeft : ChevronRight;
+
+  const quickActions = [
+    {
+      to: "/create",
+      icon: Wand2,
+      label: t("dash.startCreate"),
+      desc: t("dash.startCreateDesc"),
+      accent: true,
+    },
+    {
+      to: "/pricing",
+      icon: CreditCard,
+      label: t("dash.manageSub"),
+      desc: t("dash.manageSubDesc"),
+      accent: false,
+    },
+    {
+      to: "/support",
+      icon: HeadphonesIcon,
+      label: t("dash.supportTitle"),
+      desc: t("dash.supportDesc"),
+      accent: false,
+    },
+  ];
+
   return (
-    <div className="px-4 pt-6 pb-4">
-      <div className="mb-6 animate-float-up">
-        <h1 className="text-2xl font-bold mb-1 text-foreground">
-          {lang === "he" ? `היי, ${userName}` : `Hi, ${userName}`}
+    <div className="px-5 pt-8 pb-6 space-y-7 max-w-lg mx-auto" dir={isHe ? "rtl" : "ltr"}>
+
+      {/* Greeting */}
+      <div className="animate-float-up">
+        <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest mb-1">
+          {isHe ? "שלום" : "Hello"}
+        </p>
+        <h1 className="text-2xl font-bold text-foreground tracking-tight">
+          {userName} 👋
         </h1>
-        <p className="text-muted-foreground text-sm">{t("dash.welcome")}</p>
       </div>
 
-      {/* Plan & Credits Card */}
-      <div className="glass-card rounded-2xl p-5 mb-5 relative overflow-hidden glow-shadow animate-float-up" style={{ animationDelay: '100ms' }}>
-        <div className="absolute top-0 left-0 w-full h-1 gradient-glow" />
-        <div className="flex items-center justify-between mb-3">
+      {/* Credits card */}
+      <div className="glass-card rounded-2xl p-5 space-y-4 animate-float-up" style={{ animationDelay: "60ms" }}>
+        <div className="flex items-start justify-between">
           <div>
-            <span className="text-xs text-muted-foreground">{t("dash.plan")}</span>
-            <div className="font-bold text-foreground flex items-center gap-1">
-              <SparkleIcon size={14} />
-              Free
+            <p className="text-xs text-muted-foreground mb-0.5">{t("dash.plan")}</p>
+            <div className="flex items-center gap-1.5">
+              <Sparkles size={13} className="text-primary" strokeWidth={1.5} />
+              <span className="text-sm font-bold text-foreground">Free</span>
             </div>
           </div>
-          <Link to="/pricing" className="gradient-glow text-primary-foreground text-xs font-bold px-4 py-2.5 rounded-xl hover:scale-105 transition-all">
+          <Link
+            to="/pricing"
+            className="gradient-glow glow-shadow text-white text-xs font-semibold px-4 py-2 rounded-xl hover:scale-105 transition-transform"
+          >
             {t("dash.upgrade")}
           </Link>
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div className="bg-muted/50 rounded-xl p-3 border border-border">
-            <div className="text-xs text-muted-foreground mb-1">{t("dash.credits")}</div>
-            <div className="text-lg font-bold text-foreground">{credits.total - credits.used} / {credits.total}</div>
+
+        {/* Credit progress */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">{t("dash.credits")}</span>
+            <span className="font-semibold text-foreground">
+              {creditsLeft} / {creditsTotal}
+            </span>
           </div>
-          <div className="bg-muted/50 rounded-xl p-3 border border-border">
-            <div className="text-xs text-muted-foreground mb-1">{t("dash.renewal")}</div>
-            <div className="text-sm font-semibold text-foreground flex items-center gap-1">
-              <Calendar size={12} />
-              {renewalDate}
-            </div>
+          {/* Progress bar */}
+          <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+            <div
+              className="h-full gradient-glow rounded-full transition-all duration-700"
+              style={{ width: `${creditPct}%` }}
+            />
           </div>
+          <p className="text-[11px] text-muted-foreground">
+            {creditPct}% {isHe ? "קרדיטים נותרים" : "credits remaining"}
+          </p>
         </div>
-        <div className="mt-3 flex items-start gap-1.5 bg-muted/30 rounded-lg p-2.5 border border-border">
-          <Info size={12} className="text-muted-foreground shrink-0 mt-0.5" />
-          <span className="text-[11px] text-muted-foreground leading-relaxed">
-            {lang === "he"
-              ? "הקרדיטים מתחדשים בדיוק חודש לאחר תחילת החבילה או החידוש האחרון."
-              : "Credits renew exactly one month after your plan start date or last renewal."}
+
+        {/* Renewal */}
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground pt-1 border-t border-gray-100">
+          <Calendar size={11} strokeWidth={1.5} />
+          <span>
+            {isHe ? "חידוש:" : "Renewal:"} {renewalDate}
           </span>
         </div>
       </div>
 
       {/* Activity */}
-      <div className="glass-card rounded-2xl p-4 mb-5 animate-float-up" style={{ animationDelay: '200ms' }}>
-        <div className="flex items-center gap-2 mb-3">
-          <TrendingUp size={16} className="text-primary" />
-          <span className="font-semibold text-sm">{t("dash.activity")}</span>
+      <div className="glass-card rounded-2xl p-5 animate-float-up" style={{ animationDelay: "120ms" }}>
+        <div className="flex items-center gap-2 mb-4">
+          <TrendingUp size={15} strokeWidth={1.5} className="text-primary" />
+          <span className="text-sm font-semibold text-foreground">{t("dash.activity")}</span>
         </div>
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">{t("dash.creations")}</span>
-            <span className="font-semibold">0</span>
-          </div>
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">{t("dash.downloads")}</span>
-            <span className="font-semibold">0</span>
-          </div>
+        <div className="space-y-3">
+          {[
+            { label: t("dash.creations"), value: 0 },
+            { label: t("dash.downloads"), value: 0 },
+          ].map(row => (
+            <div key={row.label} className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">{row.label}</span>
+              <span className="text-sm font-semibold text-foreground">{row.value}</span>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <h3 className="font-bold text-base mb-3 text-foreground">{t("dash.quickActions")}</h3>
-      <div className="space-y-3">
-        <Link to="/create" className="glass-card rounded-2xl p-4 flex items-center gap-3 hover:scale-[1.02] hover:glow-shadow transition-all duration-300 group">
-          <div className="w-10 h-10 rounded-xl gradient-glow flex items-center justify-center shadow-md">
-            <Wand2 size={20} className="text-primary-foreground" />
-          </div>
-          <div>
-            <div className="font-semibold text-sm group-hover:gradient-glow-text transition-all">{t("dash.startCreate")}</div>
-            <div className="text-xs text-muted-foreground">{t("dash.startCreateDesc")}</div>
-          </div>
-        </Link>
-        <Link to="/pricing" className="glass-card rounded-2xl p-4 flex items-center gap-3 hover:scale-[1.02] transition-all duration-300">
-          <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center">
-            <CreditCard size={20} className="text-secondary-foreground" />
-          </div>
-          <div>
-            <div className="font-semibold text-sm">{t("dash.manageSub")}</div>
-            <div className="text-xs text-muted-foreground">{t("dash.manageSubDesc")}</div>
-          </div>
-        </Link>
-        <Link to="/support" className="glass-card rounded-2xl p-4 flex items-center gap-3 hover:scale-[1.02] transition-all duration-300">
-          <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center">
-            <HeadphonesIcon size={20} className="text-secondary-foreground" />
-          </div>
-          <div>
-            <div className="font-semibold text-sm">{t("dash.supportTitle")}</div>
-            <div className="text-xs text-muted-foreground">{t("dash.supportDesc")}</div>
-          </div>
-        </Link>
+      {/* Quick actions */}
+      <div className="animate-float-up" style={{ animationDelay: "180ms" }}>
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">
+          {t("dash.quickActions")}
+        </p>
+        <div className="space-y-2.5">
+          {quickActions.map(({ to, icon: Icon, label, desc, accent }) => (
+            <Link
+              key={to}
+              to={to}
+              className="glass-card rounded-2xl p-4 flex items-center gap-4 hover:shadow-md transition-all duration-200 group"
+            >
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                accent ? "gradient-glow glow-shadow" : "bg-gray-50 border border-gray-100"
+              }`}>
+                <Icon
+                  size={18}
+                  strokeWidth={1.5}
+                  className={accent ? "text-white" : "text-muted-foreground"}
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className={`text-sm font-semibold ${accent ? "gradient-glow-text" : "text-foreground"}`}>
+                  {label}
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5 truncate">{desc}</p>
+              </div>
+              <Arrow
+                size={16}
+                strokeWidth={1.5}
+                className="text-gray-300 group-hover:text-primary transition-colors shrink-0"
+              />
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -13,31 +13,35 @@ const BottomNav = () => {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border">
-      <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-2">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-100">
+      <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-4">
         {navItems.map((item) => (
           <RouterNavLink
             key={item.to}
             to={item.to}
             end={item.to === "/"}
-            className={({ isActive }) =>
-              `flex flex-col items-center gap-1 px-3 py-1.5 rounded-lg transition-all duration-300 ${
-                isActive
-                  ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground"
-              }`
-            }
+            className="flex-1"
           >
             {({ isActive }) => (
-              <>
-                <div className={`p-1.5 rounded-xl transition-all ${isActive ? "gradient-glow shadow-md" : ""}`}>
+              <div className="flex flex-col items-center gap-1.5 py-1">
+                <div className="relative flex items-center justify-center w-8 h-8">
+                  {isActive && (
+                    <span className="absolute inset-0 rounded-xl gradient-glow opacity-10" />
+                  )}
                   <item.icon
                     size={20}
-                    className={isActive ? "text-primary-foreground" : ""}
+                    strokeWidth={isActive ? 2 : 1.5}
+                    className={isActive ? "text-primary" : "text-gray-400"}
                   />
                 </div>
-                <span className={`text-[10px] font-medium ${isActive ? "gradient-glow-text font-semibold" : ""}`}>{item.label}</span>
-              </>
+                <span
+                  className={`text-[10px] font-medium leading-none transition-colors ${
+                    isActive ? "text-primary font-semibold" : "text-gray-400"
+                  }`}
+                >
+                  {item.label}
+                </span>
+              </div>
             )}
           </RouterNavLink>
         ))}
