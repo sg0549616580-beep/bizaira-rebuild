@@ -452,13 +452,12 @@ export const LanguageToggle = () => {
   return (
     <button
       onClick={() => setLang(lang === "he" ? "en" : "he")}
-      className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all hover:scale-105 active:scale-95"
-      style={{ background: "rgba(0,0,0,0.04)" }}
+      className="bg-card border border-border px-3 py-1.5 rounded-xl text-xs font-bold text-foreground hover:scale-105 transition-all flex items-center gap-1.5 shadow-sm"
       title={lang === "he" ? "Switch to English" : "עבור לעברית"}
     >
-      <span className={lang === "en" ? "text-primary font-bold" : "text-muted-foreground"}>EN</span>
-      <span className="text-gray-200 font-light mx-0.5">|</span>
-      <span className={lang === "he" ? "text-primary font-bold" : "text-muted-foreground"}>עב</span>
+      <span className={lang === "he" ? "text-muted-foreground" : "text-primary"}>EN</span>
+      <span className="text-muted-foreground">/</span>
+      <span className={lang === "he" ? "text-primary" : "text-muted-foreground"}>עב</span>
     </button>
   );
 };
