@@ -10,19 +10,9 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
   onCompleteRef.current = onComplete;
 
   useEffect(() => {
-    console.log("[BizAIra] SplashScreen mounted");
-    const enterTimer = setTimeout(() => {
-      console.log("[BizAIra] SplashScreen -> hold");
-      setPhase("hold");
-    }, 800);
-    const exitTimer = setTimeout(() => {
-      console.log("[BizAIra] SplashScreen -> exit");
-      setPhase("exit");
-    }, 2200);
-    const doneTimer = setTimeout(() => {
-      console.log("[BizAIra] SplashScreen -> complete");
-      onCompleteRef.current();
-    }, 2800);
+    const enterTimer = setTimeout(() => setPhase("hold"), 800);
+    const exitTimer  = setTimeout(() => setPhase("exit"), 2200);
+    const doneTimer  = setTimeout(() => onCompleteRef.current(), 2800);
     return () => {
       clearTimeout(enterTimer);
       clearTimeout(exitTimer);
@@ -37,28 +27,42 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
       }`}
     >
       <div
-        className={`flex flex-col items-center gap-4 transition-all duration-700 ease-out ${
+        className={`flex flex-col items-center gap-5 transition-all duration-700 ease-out ${
           phase === "enter"
             ? "opacity-0 scale-90 translate-y-4"
             : "opacity-100 scale-100 translate-y-0"
         }`}
       >
-        {/* Logo glow circle */}
+        {/* Logo — navy circle with gold B */}
         <div className="relative">
-          <div className="w-24 h-24 rounded-3xl gradient-glow glow-shadow flex items-center justify-center">
-            <span className="text-4xl font-extrabold text-primary-foreground tracking-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+          <div className="w-20 h-20 rounded-[22px] gradient-glow glow-shadow flex items-center justify-center">
+            <span
+              className="text-3xl font-black"
+              style={{ color: "hsl(39 48% 56%)", fontFamily: "'Heebo', sans-serif", letterSpacing: "-0.03em" }}
+            >
               B
             </span>
           </div>
-          <div className="absolute -inset-3 rounded-[2rem] gradient-glow opacity-20 blur-xl animate-pulse" />
+          <div className="absolute -inset-3 rounded-[2rem] gradient-glow opacity-15 blur-xl animate-pulse" />
         </div>
-        <h1
-          className="text-3xl font-extrabold gradient-glow-text tracking-tight"
-          style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-        >
-          BizAIra
-        </h1>
-        <p className="text-sm text-muted-foreground">AI Studio for Business</p>
+
+        {/* Brand name */}
+        <div className="text-center">
+          <h1
+            className="text-3xl font-black tracking-tight"
+            style={{ color: "hsl(210 100% 12%)", fontFamily: "'Heebo', sans-serif", letterSpacing: "-0.03em" }}
+          >
+            BizAIra
+          </h1>
+          {/* Gold divider */}
+          <div className="w-16 h-px mx-auto my-2" style={{ background: "hsl(39 48% 56%)" }} />
+          <p
+            className="text-xs font-medium tracking-widest uppercase"
+            style={{ color: "hsl(39 48% 56%)" }}
+          >
+            Strategic Business Intelligence
+          </p>
+        </div>
       </div>
     </div>
   );
