@@ -10,8 +10,9 @@ const CreatePage = () => {
   const { t, lang } = useI18n();
   const isHe = lang === "he";
 
+  // Consolidated tools - Photo Studio now includes Product Photos functionality
   const toolTypes = [
-    { id: "product",   icon: Camera,       titleKey: "tool.photos.title",    descKey: "tool.photos.desc",    route: "/create/product-photos", accent: true },
+    { id: "studio",    icon: Camera,       titleKey: "tool.studio.title",     descKey: "tool.studio.desc",    route: "/create/product-photos", accent: true },
     { id: "message",   icon: MessageSquare,titleKey: "tool.messages.title",   descKey: "tool.messages.desc",  route: "/create/messages",        accent: false },
     { id: "analytics", icon: BarChart3,    titleKey: "tool.analytics.title",  descKey: "tool.analytics.desc", route: "/create/analytics",       accent: false },
     { id: "time",      icon: CalendarClock,titleKey: "tool.time.title",       descKey: "tool.time.desc",      route: "/create/time",            accent: false },

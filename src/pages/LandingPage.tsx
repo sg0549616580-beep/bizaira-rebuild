@@ -49,22 +49,27 @@ const LandingPage = () => {
   // Main: Hero title + Auth or Welcome
   return (
     <div className="px-4 pt-8 pb-4 animate-fade-in">
-      {/* Hero */}
-      <div className="text-center mb-10 pt-4">
-        <h1 className="text-3xl md:text-5xl font-extrabold leading-tight mb-5 tracking-tight">
-          <span className="text-foreground">
-            {lang === "he" ? "ה-AI שיוצר לעסק שלך" : "AI That Creates For Your Business"}
-          </span>
-          <br />
-          <span className="gradient-glow-text">
-            {lang === "he" ? "הכול במקום אחד" : "Everything In One Place"}
-          </span>
+      {/* Hero — Elegant centered title with gold/lilac glow */}
+      <div className="text-center mb-10 pt-8">
+        <h1 
+          className="text-4xl md:text-6xl font-black leading-tight tracking-tight"
+          style={{
+            background: "linear-gradient(135deg, hsl(39 48% 56%), hsl(270 30% 60%), hsl(39 50% 50%))",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+            textShadow: "0 0 60px hsl(39 48% 56% / 0.3)"
+          }}
+        >
+          {lang === "he" ? "הכל במקום אחד" : "Everything In One Place"}
         </h1>
-        <p className="text-muted-foreground text-base md:text-lg leading-relaxed max-w-md mx-auto">
-          {lang === "he"
-            ? "יצירת תמונות מוצר, תוכן שיווקי, ניתוח עסקי ועוד — בתוך כמה שניות בלבד בעזרת AI."
-            : "Create product photos, marketing content, business analytics and more — in just seconds with AI."}
-        </p>
+        {/* Decorative gold/lilac divider */}
+        <div 
+          className="w-24 h-1 mx-auto mt-5 rounded-full"
+          style={{ 
+            background: "linear-gradient(90deg, transparent, hsl(39 48% 56%), hsl(270 30% 65%), transparent)" 
+          }}
+        />
       </div>
 
       {/* Auth section for non-logged-in users */}
@@ -74,11 +79,6 @@ const LandingPage = () => {
             <h2 className="text-xl font-bold text-foreground mb-1">
               {lang === "he" ? "צרו חשבון והתחילו עכשיו" : "Create an Account & Start Now"}
             </h2>
-            <p className="text-sm text-muted-foreground">
-              {lang === "he"
-                ? "הירשמו בקלות והתחילו להשתמש במערכת"
-                : "Sign up easily and start using the system"}
-            </p>
           </div>
           <AuthSection onSuccess={() => {}} />
 

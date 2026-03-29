@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { generateImage } from "@/lib/ai-service";
+import { trackCreation, trackDownload } from "@/lib/activity-tracker";
 import SparkleIcon from "@/components/SparkleIcon";
 import {
   ArrowRight, ArrowLeft, Upload, X, Download, RefreshCw,
@@ -120,6 +121,7 @@ const ImageStudioPage = () => {
       setResults(images);
       setActiveResult(0);
       incrementUsage();
+      trackCreation(); // Track the creation action
     } catch (err) {
       console.error("Generation failed:", err);
     } finally {
@@ -134,6 +136,7 @@ const ImageStudioPage = () => {
     a.href = img;
     a.download = `bizaira-image-${index + 1}.png`;
     a.click();
+    trackDownload(); // Track the download action
   };
 
   return (
@@ -169,7 +172,7 @@ const ImageStudioPage = () => {
               <Lock size={28} className="text-red-500" />
             </div>
             <h2 className="text-lg font-bold text-foreground">{isHe ? "הגעת למגבלה החודשית" : "Monthly Limit Reached"}</h2>
-            <p className="text-sm text-muted-foreground">{isHe ? "השתמשת ב-5 פעולות החודש. הכלי ייפתח מחדש בחודש הבא." : "You've used 5 actions this month. The tool will unlock next month."}</p>
+            <p className="text-sm text-muted-foreground">{isHe ? "השתמשת ב-5 פעולות החודש. הכ��י ייפתח מחדש בחודש הבא." : "You've used 5 actions this month. The tool will unlock next month."}</p>
             <Link to="/pricing" className="inline-block gradient-glow text-primary-foreground font-bold px-6 py-3 rounded-xl hover:scale-[1.02] transition-all">
               {isHe ? "שדרג ל-PRO" : "Upgrade to PRO"}
             </Link>

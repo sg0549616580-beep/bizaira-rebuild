@@ -18,14 +18,11 @@ const SupportPage = () => {
     { q: t("faq.q5"), a: t("faq.a5") },
   ];
 
+  // Features list - Photo Studio is now the consolidated tool (merged with Product Photos)
   const features = [
     {
       title: t("feature.studio.title"),
       items: [t("feature.studio.1"), t("feature.studio.2"), t("feature.studio.3"), t("feature.studio.4")],
-    },
-    {
-      title: t("feature.product.title"),
-      items: [t("feature.product.1"), t("feature.product.2"), t("feature.product.3"), t("feature.product.4")],
     },
     {
       title: t("feature.messages.title"),
@@ -42,10 +39,6 @@ const SupportPage = () => {
     {
       title: t("feature.pricing.title"),
       items: [t("feature.pricing.1"), t("feature.pricing.2"), t("feature.pricing.3"), t("feature.pricing.4")],
-    },
-    {
-      title: t("feature.imagestudio.title"),
-      items: [t("feature.imagestudio.1"), t("feature.imagestudio.2"), t("feature.imagestudio.3"), t("feature.imagestudio.4")],
     },
   ];
 
