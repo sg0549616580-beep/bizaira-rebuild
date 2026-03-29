@@ -99,8 +99,8 @@ const LandingPage = () => {
         <div className="text-center">
           <p className="text-lg text-foreground font-semibold">
             {lang === "he"
-              ? `שלום, ${user.user_metadata?.full_name || ""}! 👋`
-              : `Hello, ${user.user_metadata?.full_name || ""}! 👋`}
+              ? `שלום, ${user.user_metadata?.full_name || ""}`
+              : `Hello, ${user.user_metadata?.full_name || ""}`}
           </p>
           <p className="text-sm text-muted-foreground mt-1">
             {lang === "he" ? "נווט ליצירה דרך התפריט למטה" : "Navigate to Create from the menu below"}

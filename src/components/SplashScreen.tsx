@@ -33,35 +33,24 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
             : "opacity-100 scale-100 translate-y-0"
         }`}
       >
-        {/* Logo — elegant gold/lilac minimalist aesthetic */}
+        {/* Logo — BizAira branded logo image */}
         <div className="relative">
           {/* Soft glow background */}
           <div 
-            className="absolute -inset-4 rounded-[2rem] blur-2xl animate-pulse opacity-40"
+            className="absolute -inset-6 rounded-[2rem] blur-2xl animate-pulse opacity-50"
             style={{ 
-              background: "linear-gradient(135deg, hsl(39 48% 56% / 0.5), hsl(270 30% 70% / 0.4))" 
+              background: "linear-gradient(135deg, hsl(39 48% 56% / 0.6), hsl(270 30% 70% / 0.4))" 
             }}
           />
-          {/* Main logo container */}
-          <div 
-            className="relative w-20 h-20 rounded-[22px] flex items-center justify-center shadow-xl"
+          {/* Logo image */}
+          <img 
+            src="/images/bizaira-logo.png"
+            alt="BizAIra"
+            className="relative w-24 h-24 rounded-[22px] shadow-xl object-contain"
             style={{ 
-              background: "linear-gradient(145deg, hsl(39 48% 56%), hsl(39 55% 45%))",
-              boxShadow: "0 8px 32px -4px hsl(39 48% 56% / 0.4), 0 4px 16px -2px hsl(270 30% 60% / 0.25)"
+              boxShadow: "0 8px 32px -4px hsl(39 48% 56% / 0.5), 0 4px 16px -2px hsl(270 30% 60% / 0.3)"
             }}
-          >
-            <span
-              className="text-3xl font-black"
-              style={{ 
-                color: "hsl(0 0% 100%)", 
-                fontFamily: "'Heebo', sans-serif", 
-                letterSpacing: "-0.03em",
-                textShadow: "0 2px 4px hsl(39 50% 35% / 0.3)"
-              }}
-            >
-              B
-            </span>
-          </div>
+          />
         </div>
 
         {/* Brand name */}

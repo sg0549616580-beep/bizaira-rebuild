@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
 interface OnboardingSlidesProps {
@@ -63,8 +63,23 @@ const OnboardingSlides = ({ onComplete }: OnboardingSlidesProps) => {
       {/* Slide content */}
       <div className="max-w-md w-full text-center">
         <div className="mb-8">
-          <div className="w-16 h-16 rounded-2xl gradient-glow glow-shadow flex items-center justify-center mx-auto mb-6">
-            <Sparkles size={28} className="text-primary-foreground" />
+          {/* BizAira Logo - central visual element */}
+          <div className="relative mx-auto mb-8 w-24 h-24">
+            {/* Soft glow effect */}
+            <div 
+              className="absolute -inset-4 rounded-[2rem] blur-2xl animate-pulse opacity-40"
+              style={{ 
+                background: "linear-gradient(135deg, hsl(39 48% 56% / 0.6), hsl(270 30% 70% / 0.4))" 
+              }}
+            />
+            <img 
+              src="/images/bizaira-logo.png"
+              alt="BizAIra"
+              className="relative w-24 h-24 rounded-[22px] shadow-xl object-contain"
+              style={{ 
+                boxShadow: "0 8px 32px -4px hsl(39 48% 56% / 0.5), 0 4px 16px -2px hsl(270 30% 60% / 0.3)"
+              }}
+            />
           </div>
           <h2 className="text-2xl font-extrabold text-foreground mb-4 transition-all duration-300">
             {slides[current].title}
