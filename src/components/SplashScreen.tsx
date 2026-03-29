@@ -33,52 +33,35 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
             : "opacity-100 scale-100 translate-y-0"
         }`}
       >
-        {/* Logo — BizAira branded logo image */}
+        {/* Illustration image */}
         <div className="relative">
           {/* Soft glow background */}
           <div 
-            className="absolute -inset-6 rounded-[2rem] blur-2xl animate-pulse opacity-50"
+            className="absolute -inset-8 rounded-full blur-3xl animate-pulse opacity-30"
             style={{ 
-              background: "linear-gradient(135deg, hsl(39 48% 56% / 0.6), hsl(270 30% 70% / 0.4))" 
+              background: "linear-gradient(135deg, hsl(270 40% 75% / 0.6), hsl(270 30% 85% / 0.5))" 
             }}
           />
-          {/* Logo image */}
+          {/* Illustration */}
           <img 
-            src="/images/bizaira-logo.png"
+            src="/images/bizaira-illustration.png"
             alt="BizAIra"
-            className="relative w-24 h-24 rounded-[22px] shadow-xl object-contain"
-            style={{ 
-              boxShadow: "0 8px 32px -4px hsl(39 48% 56% / 0.5), 0 4px 16px -2px hsl(270 30% 60% / 0.3)"
-            }}
+            className="relative w-32 h-32 object-contain"
           />
         </div>
 
-        {/* Brand name */}
+        {/* Brand name — dark navy blue */}
         <div className="text-center">
           <h1
             className="text-3xl font-black tracking-tight"
             style={{ 
-              background: "linear-gradient(135deg, hsl(39 48% 56%), hsl(270 30% 55%))",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
+              color: "hsl(210 100% 12%)",
               fontFamily: "'Heebo', sans-serif", 
               letterSpacing: "-0.03em" 
             }}
           >
             BizAIra
           </h1>
-          {/* Gold/lilac gradient divider */}
-          <div 
-            className="w-20 h-0.5 mx-auto my-2.5 rounded-full" 
-            style={{ background: "linear-gradient(90deg, transparent, hsl(39 48% 56%), hsl(270 30% 65%), transparent)" }} 
-          />
-          <p
-            className="text-xs font-medium tracking-widest uppercase"
-            style={{ color: "hsl(270 20% 50%)" }}
-          >
-            Strategic Business Intelligence
-          </p>
         </div>
       </div>
     </div>

@@ -63,28 +63,31 @@ const OnboardingSlides = ({ onComplete }: OnboardingSlidesProps) => {
       {/* Slide content */}
       <div className="max-w-md w-full text-center">
         <div className="mb-8">
-          {/* BizAira Logo - central visual element */}
-          <div className="relative mx-auto mb-8 w-24 h-24">
+          {/* BizAira Illustration - central visual element */}
+          <div className="relative mx-auto mb-8 w-32 h-32">
             {/* Soft glow effect */}
             <div 
-              className="absolute -inset-4 rounded-[2rem] blur-2xl animate-pulse opacity-40"
+              className="absolute -inset-6 rounded-full blur-3xl animate-pulse opacity-30"
               style={{ 
-                background: "linear-gradient(135deg, hsl(39 48% 56% / 0.6), hsl(270 30% 70% / 0.4))" 
+                background: "linear-gradient(135deg, hsl(270 40% 75% / 0.6), hsl(270 30% 85% / 0.5))" 
               }}
             />
             <img 
-              src="/images/bizaira-logo.png"
+              src="/images/bizaira-illustration.png"
               alt="BizAIra"
-              className="relative w-24 h-24 rounded-[22px] shadow-xl object-contain"
-              style={{ 
-                boxShadow: "0 8px 32px -4px hsl(39 48% 56% / 0.5), 0 4px 16px -2px hsl(270 30% 60% / 0.3)"
-              }}
+              className="relative w-32 h-32 object-contain"
             />
           </div>
-          <h2 className="text-2xl font-extrabold text-foreground mb-4 transition-all duration-300">
+          <h2 
+            className="text-2xl font-extrabold mb-4 transition-all duration-300"
+            style={{ color: "hsl(210 100% 12%)" }}
+          >
             {slides[current].title}
           </h2>
-          <p className="text-muted-foreground text-base leading-relaxed transition-all duration-300">
+          <p 
+            className="text-base leading-relaxed transition-all duration-300"
+            style={{ color: "hsl(210 30% 35%)" }}
+          >
             {slides[current].desc}
           </p>
         </div>
