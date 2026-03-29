@@ -1,7 +1,15 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Wand2, CreditCard, HeadphonesIcon, Calendar, TrendingUp, ChevronRight, ChevronLeft, Sparkles } from "lucide-react";
+import { Wand2, CreditCard, HeadphonesIcon, Calendar, TrendingUp, ChevronRight, ChevronLeft, Sparkles, Download, PenTool } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
+
+// Local storage keys for activity tracking
+const STORAGE_KEYS = {
+  firstUseDate: "bizaira_first_credit_use",
+  creationsCount: "bizaira_creations_count",
+  downloadsCount: "bizaira_downloads_count",
+};
 
 const DashboardPage = () => {
   const { t, lang } = useI18n();
@@ -13,34 +21,44 @@ const DashboardPage = () => {
   const creditsTotal = profile?.credits_total ?? 5;
   const creditsLeft = creditsTotal - creditsUsed;
   const creditPct = creditsTotal > 0 ? Math.round((creditsLeft / creditsTotal) * 100) : 0;
-  const renewalDate = profile?.last_renewal_at
-    ? new Date(profile.last_renewal_at).toLocaleDateString(isHe ? "he-IL" : "en-US")
-    : "—";
+  
+  // Get first credit use date and calculate next renewal (1 month after first use)
+  const [firstUseDate, setFirstUseDate] = useState<string | null>(null);
+  const [creationsCount, setCreationsCount] = useState(0);
+  const [downloadsCount, setDownloadsCount] = useState(0);
+
+  useEffect(() => {
+    // Load activity stats from localStorage
+    const storedFirstUse = localStorage.getItem(STORAGE_KEYS.firstUseDate);
+    const storedCreations = localStorage.getItem(STORAGE_KEYS.creationsCount);
+    const storedDownloads = localStorage.getItem(STORAGE_KEYS.downloadsCount);
+    
+    if (storedFirstUse) setFirstUseDate(storedFirstUse);
+    if (storedCreations) setCreationsCount(parseInt(storedCreations, 10) || 0);
+    if (storedDownloads) setDownloadsCount(parseInt(storedDownloads, 10) || 0);
+  }, []);
+
+  // Calculate next renewal date (1 month after first use)
+  const getNextRenewalDate = () => {
+    if (!firstUseDate) return isHe ? "טרם נעשה שימוש" : "No usage yet";
+    const first = new Date(firstUseDate);
+    const nextRenewal = new Date(first);
+    nextRenewal.setMonth(nextRenewal.getMonth() + 1);
+    return nextRenewal.toLocaleDateString(isHe ? "he-IL" : "en-US");
+  };
+
+  const formatFirstUseDate = () => {
+    if (!firstUseDate) return isHe ? "טרם נעשה שימוש" : "No usage yet";
+    return new Date(firstUseDate).toLocaleDateString(isHe ? "he-IL" : "en-US");
+  };
 
   const Arrow = isHe ? ChevronLeft : ChevronRight;
 
+  // Quick actions with uniform deep blue/gold styling
   const quickActions = [
-    {
-      to: "/create",
-      icon: Wand2,
-      label: t("dash.startCreate"),
-      desc: t("dash.startCreateDesc"),
-      accent: true,
-    },
-    {
-      to: "/pricing",
-      icon: CreditCard,
-      label: t("dash.manageSub"),
-      desc: t("dash.manageSubDesc"),
-      accent: false,
-    },
-    {
-      to: "/support",
-      icon: HeadphonesIcon,
-      label: t("dash.supportTitle"),
-      desc: t("dash.supportDesc"),
-      accent: false,
-    },
+    { to: "/create", icon: Wand2, label: t("dash.startCreate") },
+    { to: "/pricing", icon: CreditCard, label: t("dash.manageSub") },
+    { to: "/support", icon: HeadphonesIcon, label: t("dash.supportTitle") },
   ];
 
   return (
@@ -52,7 +70,7 @@ const DashboardPage = () => {
           {isHe ? "שלום" : "Hello"}
         </p>
         <h1 className="text-2xl font-bold text-foreground tracking-tight">
-          {userName} 👋
+          {userName}
         </h1>
       </div>
 
@@ -94,66 +112,81 @@ const DashboardPage = () => {
           </p>
         </div>
 
-        {/* Renewal */}
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground pt-1 border-t border-gray-100">
-          <Calendar size={11} strokeWidth={1.5} />
-          <span>
-            {isHe ? "חידוש:" : "Renewal:"} {renewalDate}
-          </span>
+        {/* First Use & Next Renewal Dates */}
+        <div className="pt-3 border-t border-gray-100 space-y-2">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground flex items-center gap-1.5">
+              <Calendar size={11} strokeWidth={1.5} />
+              {isHe ? "שימוש ראשון:" : "First Use:"}
+            </span>
+            <span className="font-medium text-foreground">{formatFirstUseDate()}</span>
+          </div>
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground flex items-center gap-1.5">
+              <Calendar size={11} strokeWidth={1.5} />
+              {isHe ? "חידוש הבא:" : "Next Renewal:"}
+            </span>
+            <span className="font-medium text-foreground">{getNextRenewalDate()}</span>
+          </div>
         </div>
       </div>
 
-      {/* Activity */}
+      {/* Activity Stats */}
       <div className="glass-card rounded-2xl p-5 animate-float-up" style={{ animationDelay: "120ms" }}>
         <div className="flex items-center gap-2 mb-4">
           <TrendingUp size={15} strokeWidth={1.5} className="text-primary" />
           <span className="text-sm font-semibold text-foreground">{t("dash.activity")}</span>
         </div>
         <div className="space-y-3">
-          {[
-            { label: t("dash.creations"), value: 0 },
-            { label: t("dash.downloads"), value: 0 },
-          ].map(row => (
-            <div key={row.label} className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">{row.label}</span>
-              <span className="text-sm font-semibold text-foreground">{row.value}</span>
-            </div>
-          ))}
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-muted-foreground flex items-center gap-2">
+              <PenTool size={14} strokeWidth={1.5} className="text-muted-foreground" />
+              {t("dash.creations")}
+            </span>
+            <span className="text-sm font-semibold text-foreground">{creationsCount}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-muted-foreground flex items-center gap-2">
+              <Download size={14} strokeWidth={1.5} className="text-muted-foreground" />
+              {t("dash.downloads")}
+            </span>
+            <span className="text-sm font-semibold text-foreground">{downloadsCount}</span>
+          </div>
         </div>
       </div>
 
-      {/* Quick actions */}
+      {/* Quick actions — Uniform deep blue with gold text styling */}
       <div className="animate-float-up" style={{ animationDelay: "180ms" }}>
         <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">
           {t("dash.quickActions")}
         </p>
-        <div className="space-y-2.5">
-          {quickActions.map(({ to, icon: Icon, label, desc, accent }) => (
+        <div className="grid grid-cols-3 gap-3">
+          {quickActions.map(({ to, icon: Icon, label }) => (
             <Link
               key={to}
               to={to}
-              className="glass-card rounded-2xl p-4 flex items-center gap-4 hover:shadow-md transition-all duration-200 group"
+              className="flex flex-col items-center justify-center p-4 rounded-2xl hover:scale-[1.03] transition-all duration-200 group"
+              style={{
+                background: "hsl(210 100% 12%)",
+                boxShadow: "0 4px 20px -4px hsl(210 100% 12% / 0.35), 0 2px 10px -2px hsl(39 48% 56% / 0.15)"
+              }}
             >
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                accent ? "gradient-glow glow-shadow" : "bg-gray-50 border border-gray-100"
-              }`}>
+              <div 
+                className="w-11 h-11 rounded-xl flex items-center justify-center mb-2"
+                style={{ background: "hsl(210 100% 16%)" }}
+              >
                 <Icon
-                  size={18}
+                  size={20}
                   strokeWidth={1.5}
-                  className={accent ? "text-white" : "text-muted-foreground"}
+                  style={{ color: "hsl(39 48% 56%)" }}
                 />
               </div>
-              <div className="flex-1 min-w-0">
-                <p className={`text-sm font-semibold ${accent ? "gradient-glow-text" : "text-foreground"}`}>
-                  {label}
-                </p>
-                <p className="text-xs text-muted-foreground mt-0.5 truncate">{desc}</p>
-              </div>
-              <Arrow
-                size={16}
-                strokeWidth={1.5}
-                className="text-gray-300 group-hover:text-primary transition-colors shrink-0"
-              />
+              <p 
+                className="text-xs font-bold text-center leading-tight"
+                style={{ color: "hsl(39 48% 56%)" }}
+              >
+                {label}
+              </p>
             </Link>
           ))}
         </div>

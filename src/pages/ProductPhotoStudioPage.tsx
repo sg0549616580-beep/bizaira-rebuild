@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { generateImage } from "@/lib/ai-service";
+import { trackCreation, trackDownload } from "@/lib/activity-tracker";
 import SparkleIcon from "@/components/SparkleIcon";
 import {
   ArrowRight, ArrowLeft, Upload, X, Download, RefreshCw,
@@ -145,6 +146,7 @@ const ProductPhotoStudioPage = () => {
 
       const result = await generateImage(prompt, originalImage || undefined);
       setResultImage(result);
+      trackCreation(); // Track the creation action
     } catch (err) {
       console.error("Enhancement failed:", err);
     } finally {
@@ -158,6 +160,7 @@ const ProductPhotoStudioPage = () => {
     a.href = resultImage;
     a.download = "bizaira-product-photo.png";
     a.click();
+    trackDownload(); // Track the download action
   };
 
   const canProceed = () => {

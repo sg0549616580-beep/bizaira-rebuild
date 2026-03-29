@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { Send, ChevronDown, ChevronUp, MessageCircle, HelpCircle, Download, FileText, Mail } from "lucide-react";
+import { Send, ChevronDown, ChevronUp, MessageCircle, HelpCircle } from "lucide-react";
 import SparkleIcon from "@/components/SparkleIcon";
 import { useI18n } from "@/lib/i18n";
 
 const SupportPage = () => {
-  const { t, lang } = useI18n();
+  const { t } = useI18n();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -17,53 +17,6 @@ const SupportPage = () => {
     { q: t("faq.q4"), a: t("faq.a4") },
     { q: t("faq.q5"), a: t("faq.a5") },
   ];
-
-  const features = [
-    {
-      title: t("feature.studio.title"),
-      items: [t("feature.studio.1"), t("feature.studio.2"), t("feature.studio.3"), t("feature.studio.4")],
-    },
-    {
-      title: t("feature.product.title"),
-      items: [t("feature.product.1"), t("feature.product.2"), t("feature.product.3"), t("feature.product.4")],
-    },
-    {
-      title: t("feature.messages.title"),
-      items: [t("feature.messages.1"), t("feature.messages.2"), t("feature.messages.3"), t("feature.messages.4")],
-    },
-    {
-      title: t("feature.analytics.title"),
-      items: [t("feature.analytics.1"), t("feature.analytics.2"), t("feature.analytics.3"), t("feature.analytics.4")],
-    },
-    {
-      title: t("feature.time.title"),
-      items: [t("feature.time.1"), t("feature.time.2"), t("feature.time.3"), t("feature.time.4")],
-    },
-    {
-      title: t("feature.pricing.title"),
-      items: [t("feature.pricing.1"), t("feature.pricing.2"), t("feature.pricing.3"), t("feature.pricing.4")],
-    },
-    {
-      title: t("feature.imagestudio.title"),
-      items: [t("feature.imagestudio.1"), t("feature.imagestudio.2"), t("feature.imagestudio.3"), t("feature.imagestudio.4")],
-    },
-  ];
-
-  const handleExportPDF = () => {
-    const content = features
-      .map((f) => `${f.title}\n${f.items.map((item, i) => `  ${i + 1}. ${item}`).join("\n")}`)
-      .join("\n\n");
-
-    const fullContent = `BizAIra — ${t("support.features")}\n${"=".repeat(40)}\n\n${content}\n\n${"=".repeat(40)}\nwww.bizaira.com`;
-
-    const blob = new Blob([fullContent], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "BizAIra-Features.txt";
-    a.click();
-    URL.revokeObjectURL(url);
-  };
 
   return (
     <div className="px-4 pt-6 pb-4 max-w-2xl mx-auto">
@@ -143,38 +96,6 @@ const SupportPage = () => {
         </div>
       </div>
 
-      {/* Step 3: Features explanation - clean text only */}
-      <div className="glass-card rounded-2xl p-5 mb-6 animate-float-up" style={{ animationDelay: "150ms" }}>
-        <div className="flex items-center justify-between mb-5">
-          <h3 className="font-bold text-base text-foreground">
-            {t("support.features")}
-          </h3>
-          <button
-            onClick={handleExportPDF}
-            className="bg-secondary text-secondary-foreground px-3 py-1.5 rounded-xl text-xs font-medium flex items-center gap-1.5 hover:scale-105 transition-all border border-border"
-          >
-            {t("support.export")}
-          </button>
-        </div>
-
-        <div className="space-y-6">
-          {features.map((feature, i) => (
-            <div key={i}>
-              <h4 className="text-sm font-bold text-foreground mb-3">{feature.title}</h4>
-              <div className="space-y-2">
-                {feature.items.map((item, j) => (
-                  <p key={j} className="text-sm text-muted-foreground leading-relaxed">
-                    {item}
-                  </p>
-                ))}
-              </div>
-              {i < features.length - 1 && (
-                <div className="border-b border-border mt-5" />
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 };

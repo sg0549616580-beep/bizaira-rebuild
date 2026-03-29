@@ -27,41 +27,41 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
       }`}
     >
       <div
-        className={`flex flex-col items-center gap-5 transition-all duration-700 ease-out ${
+        className={`flex flex-col items-center gap-6 transition-all duration-700 ease-out ${
           phase === "enter"
             ? "opacity-0 scale-90 translate-y-4"
             : "opacity-100 scale-100 translate-y-0"
         }`}
       >
-        {/* Logo — navy circle with gold B */}
+        {/* Illustration image */}
         <div className="relative">
-          <div className="w-20 h-20 rounded-[22px] gradient-glow glow-shadow flex items-center justify-center">
-            <span
-              className="text-3xl font-black"
-              style={{ color: "hsl(39 48% 56%)", fontFamily: "'Heebo', sans-serif", letterSpacing: "-0.03em" }}
-            >
-              B
-            </span>
-          </div>
-          <div className="absolute -inset-3 rounded-[2rem] gradient-glow opacity-15 blur-xl animate-pulse" />
+          {/* Soft glow background */}
+          <div 
+            className="absolute -inset-8 rounded-full blur-3xl animate-pulse opacity-30"
+            style={{ 
+              background: "linear-gradient(135deg, hsl(270 40% 75% / 0.6), hsl(270 30% 85% / 0.5))" 
+            }}
+          />
+          {/* Illustration */}
+          <img 
+            src="/images/bizaira-illustration.png"
+            alt="BizAIra"
+            className="relative w-32 h-32 object-contain"
+          />
         </div>
 
-        {/* Brand name */}
+        {/* Brand name — dark navy blue */}
         <div className="text-center">
           <h1
             className="text-3xl font-black tracking-tight"
-            style={{ color: "hsl(210 100% 12%)", fontFamily: "'Heebo', sans-serif", letterSpacing: "-0.03em" }}
+            style={{ 
+              color: "hsl(210 100% 12%)",
+              fontFamily: "'Heebo', sans-serif", 
+              letterSpacing: "-0.03em" 
+            }}
           >
             BizAIra
           </h1>
-          {/* Gold divider */}
-          <div className="w-16 h-px mx-auto my-2" style={{ background: "hsl(39 48% 56%)" }} />
-          <p
-            className="text-xs font-medium tracking-widest uppercase"
-            style={{ color: "hsl(39 48% 56%)" }}
-          >
-            Strategic Business Intelligence
-          </p>
         </div>
       </div>
     </div>

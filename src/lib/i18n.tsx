@@ -36,7 +36,7 @@ const translations: Translations = {
   "tool.journal.title": { he: "יומן עסקי", en: "Business Journal" },
   "tool.journal.desc": { he: "משימות, תכנון והתקדמות", en: "Tasks, planning & progress" },
   "tool.photos.title": { he: "סטודיו תמונות", en: "Photo Studio" },
-  "tool.photos.desc": { he: "צילום סטודיו מקצועי", en: "Professional studio photography" },
+  "tool.photos.desc": { he: "תמונות מוצר, לוגו ופרופיל עסקי", en: "Product photos, logos & business profiles" },
   "tool.messages.title": { he: "הודעות AI", en: "AI Messages" },
   "tool.messages.desc": { he: "ניסוח שיווקי חכם", en: "Smart marketing copy" },
   "tool.analytics.title": { he: "ניתוח עסקי", en: "Business Analytics" },
@@ -45,8 +45,8 @@ const translations: Translations = {
   "tool.time.desc": { he: "אופטימיזציה חכמה", en: "Smart optimization" },
   "tool.pricing.title": { he: "תמחור חכם", en: "Smart Pricing" },
   "tool.pricing.desc": { he: "אסטרטגיית מחירים", en: "Pricing strategy" },
-  "tool.studio.title": { he: "סטודיו תמונות", en: "Image Studio" },
-  "tool.studio.desc": { he: "עריכה ושדרוג מתקדם", en: "Advanced editing and enhancement" },
+  "tool.studio.title": { he: "סטודיו תמונות", en: "Photo Studio" },
+  "tool.studio.desc": { he: "תמונות מוצר, לוגו, פרופיל עסקי וסטורי", en: "Product photos, logos, profiles & stories" },
 
   // Create Page
   "create.title": { he: "סטודיו יצירה", en: "Creation Studio" },
@@ -92,7 +92,7 @@ const translations: Translations = {
   "video.businessField.ph": { he: "לדוגמה: עיצוב פנים", en: "Example: Interior Design" },
   "video.slogan": { he: "סלוגן (אופציונלי)", en: "Slogan (optional)" },
   "video.slogan.ph": { he: "לדוגמה: הבית שלך, החלום שלנו", en: "Example: Your Home, Our Dream" },
-  "video.uploadImages": { he: "העלה עד 2 תמונות (לוגו + תמונת מוצר)", en: "Upload up to 2 images (logo + product photo)" },
+  "video.uploadImages": { he: "ה��לה עד 2 תמונות (לוגו + תמונת מוצר)", en: "Upload up to 2 images (logo + product photo)" },
   "video.upload": { he: "העלאה", en: "Upload" },
   "video.textStyle": { he: "סגנון ניסוח", en: "Writing Style" },
   "video.freeText": { he: "טקסט חופשי", en: "Free Text" },
@@ -366,7 +366,7 @@ const translations: Translations = {
   "dash.manageSub": { he: "ניהול מנוי", en: "Manage Subscription" },
   "dash.manageSubDesc": { he: "שדרוג, תשלומים וחשבוניות", en: "Upgrades, payments and invoices" },
   "dash.supportTitle": { he: "תמיכה", en: "Support" },
-  "dash.supportDesc": { he: "צור קשר או מצא תשובות", en: "Contact us or find answers" },
+  "dash.supportDesc": { he: "צור קשר א�� מצא תשובות", en: "Contact us or find answers" },
 
   // Pricing Page
   "pricing.title": { he: "בחר את המסלול שלך", en: "Choose Your Plan" },
