@@ -1,3 +1,2 @@
-# Welcome to your Lovable project
-
-TODO: Document your project here
+# BizAIra
+Professional Business Management & Content Creation Platform
